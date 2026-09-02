@@ -2,6 +2,6 @@
 // 這組 anon key 設計上就是可以公開的，安全性由 schema.sql 裡的 RLS 政策把關，
 // 不需要因為它出現在這裡而擔心，也不需要另外用 .gitignore 排除這個檔案。
 window.APP_CONFIG = {
-  SUPABASE_URL: 'https://YOUR-PROJECT-REF.supabase.co',
-  SUPABASE_ANON_KEY: 'YOUR-ANON-PUBLIC-KEY',
+  SUPABASE_URL: 'https://cfalawxigobkpqjtcpzq.supabase.co',
+  SUPABASE_ANON_KEY: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNmYWxhd3hpZ29ia3BxanRjcHpxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODgzMjY0NDYsImV4cCI6MjEwMzkwMjQ0Nn0.AKkXkUgHg8uYVD5bvcXm4Rq9noH0NfPdneto8w3IPiY',
 };
