@@ -1,0 +1,7 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- 18 格徽章牆共用同一款爪印圖示，鎖定/解鎖狀態由外層 CSS 的底色與邊框區分，不做 18 種不同圖案 -->
+  <ellipse cx="50" cy="62" rx="26" ry="20" fill="currentColor"/>
+  <ellipse cx="26" cy="34" rx="10" ry="12" fill="currentColor"/>
+  <ellipse cx="50" cy="24" rx="10" ry="12" fill="currentColor"/>
+  <ellipse cx="74" cy="34" rx="10" ry="12" fill="currentColor"/>
+</svg>

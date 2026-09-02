@@ -1,0 +1,20 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Enisa 的夥伴：狐靈 第二階段（國二）長出三尾，帶淡淡靈氣光暈 -->
+  <ellipse cx="100" cy="150" rx="13" ry="28" fill="#F3A489" opacity="0.5" transform="rotate(0 100 150)"/>
+  <ellipse cx="40" cy="150" rx="40" ry="16" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3" transform="rotate(18 40 150)"/>
+  <ellipse cx="160" cy="150" rx="40" ry="16" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3" transform="rotate(-18 160 150)"/>
+  <ellipse cx="10" cy="139" rx="9" ry="8" fill="#B9AFC7" transform="rotate(18 10 139)"/>
+  <ellipse cx="190" cy="139" rx="9" ry="8" fill="#F3A489" transform="rotate(-18 190 139)"/>
+  <ellipse cx="100" cy="132" rx="46" ry="34" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <circle cx="100" cy="84" r="34" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M74 62 L80 40 L92 60 Z" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M126 62 L120 40 L108 60 Z" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M80 52 L84 42 L90 54 Z" fill="#B9AFC7"/>
+  <path d="M120 52 L116 42 L110 54 Z" fill="#B9AFC7"/>
+  <circle cx="88" cy="86" r="3.5" fill="#4A3F35"/>
+  <circle cx="112" cy="86" r="3.5" fill="#4A3F35"/>
+  <path d="M96 98 Q100 102 104 98" stroke="#4A3F35" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <ellipse cx="100" cy="93" rx="4" ry="3" fill="#4A3F35"/>
+  <path d="M46 56 l3 8 l8 3 l-8 3 l-3 8 l-3-8 l-8-3 l8-3 Z" fill="#B9AFC7"/>
+  <path d="M156 66 l2.5 6.5 l6.5 2.5 l-6.5 2.5 l-2.5 6.5 l-2.5-6.5 l-6.5-2.5 l6.5-2.5 Z" fill="#F3A489"/>
+</svg>

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>家長輸入 · 成長記錄本</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <header class="site-header simple">
+    <a href="index.html" class="form-hint" style="display:block;padding:12px 0;">← 回成長頁面</a>
+  </header>
+
+  <main class="entry-main">
+    <section id="loginGate" class="card login-gate" hidden>
+      <h1>家長登入</h1>
+      <p>請用 Google 帳號登入以新增或編輯成績。</p>
+      <button id="googleLoginBtn">使用 Google 登入</button>
+    </section>
+
+    <section id="noAccessPanel" class="card" hidden>
+      <p>這個 Google 帳號目前沒有編輯權限，如果需要權限請聯絡主管理帳號。</p>
+      <button class="btn-secondary" id="logoutBtnNoAccess">登出</button>
+    </section>
+
+    <section id="entryPanel" hidden>
+      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
+        <span id="loggedInEmail" class="form-hint"></span>
+        <button class="btn-secondary" id="logoutBtn">登出</button>
+      </div>
+
+      <div class="card">
+        <h2>新增 / 編輯成績</h2>
+        <form id="scoreForm">
+          <label>學生
+            <select id="scoreStudent" required></select>
+          </label>
+          <div class="subject-input-row">
+            <label>年級
+              <select id="scoreGrade" required>
+                <option value="1">國一</option>
+                <option value="2">國二</option>
+                <option value="3">國三</option>
+              </select>
+            </label>
+            <label>學期
+              <select id="scoreSemester" required>
+                <option value="1">上學期</option>
+                <option value="2">下學期</option>
+              </select>
+            </label>
+            <label>段考
+              <select id="scoreExamType" required>
+                <option value="1">第一次段考</option>
+                <option value="2">第二次段考</option>
+                <option value="3">第三次段考</option>
+              </select>
+            </label>
+          </div>
+          <label>考試日期（選填）
+            <input type="date" id="scoreExamDate" />
+          </label>
+          <div class="subject-input-row" id="subjectInputs"></div>
+          <button type="submit">儲存成績</button>
+          <div id="scoreFormMsg"></div>
+        </form>
+      </div>
+
+      <div class="card">
+        <h2>校排名次</h2>
+        <form id="rankForm">
+          <label>學生
+            <select id="rankStudent" required></select>
+          </label>
+          <div class="subject-input-row">
+            <label>年級
+              <select id="rankGrade" required>
+                <option value="1">國一</option>
+                <option value="2">國二</option>
+                <option value="3">國三</option>
+              </select>
+            </label>
+            <label>學期
+              <select id="rankSemester" required>
+                <option value="1">上學期</option>
+                <option value="2">下學期</option>
+              </select>
+            </label>
+            <label>段考
+              <select id="rankExamType" required>
+                <option value="1">第一次段考</option>
+                <option value="2">第二次段考</option>
+                <option value="3">第三次段考</option>
+              </select>
+            </label>
+          </div>
+          <div class="subject-input-row">
+            <label>名次
+              <input type="number" id="rankValue" min="1" required />
+            </label>
+            <label>該次全體人數
+              <input type="number" id="rankTotal" min="1" required />
+            </label>
+          </div>
+          <button type="submit">儲存排名</button>
+          <div id="rankFormMsg"></div>
+        </form>
+      </div>
+
+      <div class="card" id="adminPanel" hidden>
+        <h2>白名單管理</h2>
+        <p class="form-hint">只有主管理帳號看得到這個區塊。</p>
+        <ul id="adminList" style="list-style:none;padding:0;margin:0;"></ul>
+        <form id="addAdminForm" style="margin-top:16px;">
+          <label>新增白名單 Email
+            <input type="email" id="newAdminEmail" required />
+          </label>
+          <button type="submit">新增</button>
+          <div id="addAdminMsg"></div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/supabaseClient.js" defer></script>
+  <script src="js/auth.js" defer></script>
+  <script src="js/entry.js" defer></script>
+</body>
+</html>

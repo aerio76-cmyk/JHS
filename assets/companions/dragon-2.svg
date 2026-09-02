@@ -1,0 +1,17 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Milo 的夥伴：幼龍 第二階段（國二）翅膀長開、體型拉長，尾端有暖光 -->
+  <path d="M52 118 C20 100, 22 66, 54 66 C56 88, 54 106, 52 118 Z" fill="#F6D384" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M148 118 C180 100, 178 66, 146 66 C144 88, 146 106, 148 118 Z" fill="#F6D384" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M132 158 C154 168, 172 158, 168 144 C160 146, 148 150, 132 158 Z" fill="#FBEFE0" stroke="#4A3F35" stroke-width="2.5"/>
+  <circle cx="168" cy="150" r="9" fill="#F3A489" opacity="0.85"/>
+
+  <ellipse cx="100" cy="150" rx="34" ry="24" fill="#F6D384" stroke="#4A3F35" stroke-width="3"/>
+  <ellipse cx="100" cy="106" rx="42" ry="40" fill="#F6D384" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M92 64 L96 48 L104 64 Z" fill="#F3A489" stroke="#4A3F35" stroke-width="2.5"/>
+  <path d="M78 70 L82 58 L88 70 Z" fill="#F3A489" stroke="#4A3F35" stroke-width="2.5"/>
+  <circle cx="86" cy="98" r="4" fill="#4A3F35"/>
+  <circle cx="114" cy="98" r="4" fill="#4A3F35"/>
+  <path d="M90 116 Q100 124 110 116" stroke="#4A3F35" stroke-width="3" fill="none" stroke-linecap="round"/>
+
+  <path d="M76 172 l-6 10 M100 176 l0 12 M124 172 l6 10" stroke="#4A3F35" stroke-width="3" stroke-linecap="round"/>
+</svg>

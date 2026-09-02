@@ -1,0 +1,350 @@
+/* ========== Design tokens ========== */
+:root {
+  --bg-paper: #FBF6EE;
+  --bg-card: #FFFFFF;
+  --ink: #4A3F35;
+  --ink-soft: #8A7D6E;
+
+  --matcha: #9FCB9A;      /* 進步中 */
+  --matcha-tint: #E3F1E0;
+  --butter: #F6D384;      /* 穩定發揮 */
+  --butter-tint: #FBF0D9;
+  --peach: #F3A489;       /* 個人巔峰 / 主視覺點綴 */
+  --peach-tint: #FCE7DF;
+  --mist: #B9AFC7;        /* 醞釀成長期 */
+  --mist-tint: #EEEAF3;
+
+  --font-display: 'Patrick Hand', 'jf-openhuninn', 'Chiron Sans HK', 'Microsoft JhengHei', sans-serif;
+  --font-body: 'jf-openhuninn', 'Chiron Sans HK', 'Microsoft JhengHei', sans-serif;
+  --font-data: 'Nunito', 'jf-openhuninn', 'Chiron Sans HK', sans-serif;
+
+  --radius-card: 22px;
+  --radius-pill: 999px;
+  --shadow-paper: 0 4px 14px rgba(74, 63, 53, 0.08);
+}
+
+/* 選用：若有下載 jf-openhuninn 字型檔（見 README），放到 assets/fonts/ 後這裡就會生效，
+   沒有的話會自動 fallback 到系統中文字型，不影響網站正常使用。 */
+@font-face {
+  font-family: 'jf-openhuninn';
+  src: url('../assets/fonts/jf-openhuninn.woff2') format('woff2');
+  font-display: swap;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--bg-paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  line-height: 1.6;
+}
+
+h1, h2, h3, .display-text {
+  font-family: var(--font-display);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 16px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ========== 卡片 ========== */
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-paper);
+  padding: 20px;
+}
+
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 1.4rem;
+}
+
+/* ========== 學生分頁（筆記本索引籤感） ========== */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg-paper);
+  padding: 12px 16px 0;
+}
+
+.student-tabs {
+  display: flex;
+  gap: 8px;
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.student-tab {
+  font-family: var(--font-display);
+  font-size: 1.1rem;
+  padding: 10px 20px 8px;
+  border: none;
+  background: var(--bg-card);
+  border-radius: 14px 14px 0 0;
+  color: var(--ink-soft);
+  cursor: pointer;
+  box-shadow: var(--shadow-paper);
+}
+
+.student-tab.is-active {
+  background: var(--peach-tint);
+  color: var(--ink);
+}
+
+/* ========== 成長夥伴 hero ========== */
+.hero-companion {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 24px 20px;
+}
+
+.companion-illustration {
+  width: 128px;
+  height: 128px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 6px 8px rgba(74, 63, 53, 0.12));
+}
+
+.companion-illustration.is-peak {
+  filter: drop-shadow(0 0 14px rgba(243, 164, 137, 0.65));
+}
+
+.speech-bubble {
+  position: relative;
+  background: var(--butter-tint);
+  border-radius: 18px;
+  padding: 14px 18px;
+  font-family: var(--font-display);
+  font-size: 1.15rem;
+}
+
+.speech-bubble::before {
+  content: '';
+  position: absolute;
+  left: -10px;
+  top: 24px;
+  border: 10px solid transparent;
+  border-right-color: var(--butter-tint);
+}
+
+/* ========== 狀態標籤（借用 Acc. SE 比對工具的色塊語彙，改塗鴉風） ========== */
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.85rem;
+  font-family: var(--font-body);
+  border: 2px solid transparent;
+}
+
+.status-tag--progress { background: var(--matcha-tint); color: #4C7A48; border-color: var(--matcha); }
+.status-tag--stable { background: var(--butter-tint); color: #8A6A20; border-color: var(--butter); }
+.status-tag--fluctuation { background: var(--mist-tint); color: #6B5F80; border-color: var(--mist); }
+.status-tag--peak { background: var(--peach-tint); color: #B5502E; border-color: var(--peach); }
+.status-tag--peak::before { content: '\2605'; }
+.status-tag--insufficient_data { background: #F1EDE6; color: var(--ink-soft); border-color: #E3DCCF; }
+
+/* ========== 印章（段考成績記錄完成用，只用這一處） ========== */
+.stamp {
+  display: inline-block;
+  border: 3px solid var(--peach);
+  color: var(--peach);
+  border-radius: 50%;
+  padding: 10px 14px;
+  font-family: var(--font-display);
+  transform: rotate(-8deg);
+  font-size: 1.1rem;
+}
+
+/* ========== 徽章牆 ========== */
+.badge-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 10px;
+}
+
+.badge {
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.badge.is-unlocked {
+  background: var(--butter-tint);
+  border: 2px solid var(--butter);
+}
+
+.badge.is-locked {
+  background: #F1EDE6;
+  border: 2px dashed #D9D0C0;
+  opacity: 0.6;
+}
+
+.badge-icon {
+  width: 60%;
+  height: 60%;
+  -webkit-mask-image: url('../assets/badges/badge-paw.svg');
+  mask-image: url('../assets/badges/badge-paw.svg');
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+}
+
+.badge.is-unlocked .badge-icon { background-color: #C99A3B; }
+.badge.is-locked .badge-icon { background-color: #CFC6B4; }
+
+/* ========== 圖表 / 表格 ========== */
+canvas { max-width: 100%; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+th, td {
+  text-align: left;
+  padding: 8px 6px;
+  border-bottom: 1px solid #EFE9DD;
+  font-family: var(--font-data);
+}
+
+th { color: var(--ink-soft); font-weight: 700; }
+
+.score-num { font-family: var(--font-data); font-weight: 700; }
+
+/* ========== 學期比較卡片 ========== */
+.compare-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.compare-cell {
+  background: var(--matcha-tint);
+  border-radius: 14px;
+  padding: 12px;
+}
+
+/* ========== 排名卡片 ========== */
+.rank-figure {
+  font-family: var(--font-data);
+  font-size: 2.2rem;
+  font-weight: 800;
+}
+
+.rank-total {
+  color: var(--ink-soft);
+  font-size: 1rem;
+}
+
+/* ========== Footer 低調入口 ========== */
+.site-footer {
+  display: flex;
+  justify-content: center;
+  padding: 24px 0 40px;
+}
+
+.entry-link {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-paper);
+  text-decoration: none;
+  opacity: 0.55;
+  font-size: 1.1rem;
+}
+
+.entry-link:hover { opacity: 1; }
+
+/* ========== 家長輸入頁 ========== */
+.entry-main {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px 80px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.login-gate { text-align: center; }
+
+button, .btn {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  padding: 10px 20px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--matcha);
+  color: #fff;
+  cursor: pointer;
+}
+
+button.btn-secondary {
+  background: transparent;
+  border: 2px solid var(--ink-soft);
+  color: var(--ink-soft);
+}
+
+button.btn-danger {
+  background: var(--mist);
+}
+
+form { display: flex; flex-direction: column; gap: 12px; }
+
+label { font-size: 0.9rem; color: var(--ink-soft); display: flex; flex-direction: column; gap: 4px; }
+
+input, select {
+  font-family: var(--font-data);
+  font-size: 1rem;
+  padding: 8px 10px;
+  border: 2px solid #E3DCCF;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.subject-input-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+  gap: 10px;
+}
+
+.admin-list-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #EFE9DD;
+}
+
+.form-hint { font-size: 0.8rem; color: var(--ink-soft); }
+.form-error { color: #B5502E; font-size: 0.9rem; }
+.form-success { color: #4C7A48; font-size: 0.9rem; }
+
+@media (min-width: 640px) {
+  .hero-companion { padding: 32px; }
+  .companion-illustration { width: 160px; height: 160px; }
+}

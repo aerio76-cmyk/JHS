@@ -1,0 +1,15 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Enisa 的夥伴：狐靈 第一階段（國一）單尾小狐幼獸 -->
+  <ellipse cx="45" cy="150" rx="36" ry="16" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3" transform="rotate(20 45 150)"/>
+  <ellipse cx="14" cy="137" rx="9" ry="8" fill="#F3A489" transform="rotate(20 14 137)"/>
+  <ellipse cx="100" cy="132" rx="46" ry="34" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <circle cx="100" cy="84" r="34" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M74 62 L80 40 L92 60 Z" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M126 62 L120 40 L108 60 Z" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M80 52 L84 42 L90 54 Z" fill="#F3A489"/>
+  <path d="M120 52 L116 42 L110 54 Z" fill="#F3A489"/>
+  <circle cx="88" cy="86" r="3.5" fill="#4A3F35"/>
+  <circle cx="112" cy="86" r="3.5" fill="#4A3F35"/>
+  <path d="M96 98 Q100 102 104 98" stroke="#4A3F35" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <ellipse cx="100" cy="93" rx="4" ry="3" fill="#4A3F35"/>
+</svg>

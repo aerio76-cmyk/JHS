@@ -1,0 +1,11 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Milo 的夥伴：幼龍 第一階段（國一）圓滾滾的龍蛋幼獸，小小翅膀苞 -->
+  <path d="M60 128 C40 116, 44 96, 62 92 C58 104, 60 118, 60 128 Z" fill="#F6D384" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M140 128 C160 116, 156 96, 138 92 C142 104, 140 118, 140 128 Z" fill="#F6D384" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M124 150 C138 154, 146 146, 142 138 C136 140, 128 144, 124 150 Z" fill="#F3A489" stroke="#4A3F35" stroke-width="2.5"/>
+  <ellipse cx="100" cy="120" rx="50" ry="48" fill="#F6D384" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M92 76 L96 62 L104 76 Z" fill="#F3A489" stroke="#4A3F35" stroke-width="2.5"/>
+  <circle cx="86" cy="110" r="4" fill="#4A3F35"/>
+  <circle cx="114" cy="110" r="4" fill="#4A3F35"/>
+  <path d="M90 128 Q100 136 110 128" stroke="#4A3F35" stroke-width="3" fill="none" stroke-linecap="round"/>
+</svg>

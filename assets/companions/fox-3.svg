@@ -1,0 +1,29 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- Enisa 的夥伴：狐靈 第三階段（國三）多尾流蘇姿態，柔和光暈，全系列精神核心 -->
+  <circle cx="100" cy="110" r="92" fill="#F3A489" opacity="0.12"/>
+  <circle cx="100" cy="110" r="70" fill="#EEEAF3" opacity="0.25"/>
+
+  <ellipse cx="100" cy="98" rx="13" ry="65" fill="#F3A489" opacity="0.55" transform="rotate(0 100 98)"/>
+  <ellipse cx="70" cy="140" rx="16" ry="44" fill="#EEEAF3" opacity="0.85" transform="rotate(-45 70 140)"/>
+  <ellipse cx="130" cy="140" rx="16" ry="44" fill="#EEEAF3" opacity="0.85" transform="rotate(45 130 140)"/>
+  <ellipse cx="35" cy="158" rx="44" ry="18" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3" transform="rotate(20 35 158)"/>
+  <ellipse cx="165" cy="158" rx="44" ry="18" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3" transform="rotate(-20 165 158)"/>
+
+  <ellipse cx="3" cy="145" rx="10" ry="9" fill="#B9AFC7" transform="rotate(20 3 145)"/>
+  <ellipse cx="192" cy="145" rx="10" ry="9" fill="#F3A489" transform="rotate(-20 192 145)"/>
+
+  <ellipse cx="100" cy="128" rx="48" ry="36" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <circle cx="100" cy="80" r="34" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M74 58 L80 36 L92 56 Z" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M126 58 L120 36 L108 56 Z" fill="#FBEFE0" stroke="#4A3F35" stroke-width="3"/>
+  <path d="M80 48 L84 38 L90 50 Z" fill="#B9AFC7"/>
+  <path d="M120 48 L116 38 L110 50 Z" fill="#F3A489"/>
+  <circle cx="88" cy="82" r="3.5" fill="#4A3F35"/>
+  <circle cx="112" cy="82" r="3.5" fill="#4A3F35"/>
+  <path d="M96 94 Q100 98 104 94" stroke="#4A3F35" stroke-width="3" fill="none" stroke-linecap="round"/>
+  <ellipse cx="100" cy="89" rx="4" ry="3" fill="#4A3F35"/>
+
+  <path d="M40 44 l3 8 l8 3 l-8 3 l-3 8 l-3-8 l-8-3 l8-3 Z" fill="#B9AFC7"/>
+  <path d="M160 50 l2.5 6.5 l6.5 2.5 l-6.5 2.5 l-2.5 6.5 l-2.5-6.5 l-6.5-2.5 l6.5-2.5 Z" fill="#F3A489"/>
+  <path d="M100 24 l2.5 6.5 l6.5 2.5 l-6.5 2.5 l-2.5 6.5 l-2.5-6.5 l-6.5-2.5 l6.5-2.5 Z" fill="#EEEAF3"/>
+</svg>
