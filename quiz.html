@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>英文練習題 · 成長記錄本</title>
+<link rel="stylesheet" href="css/style.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&family=Patrick+Hand&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div class="page-head">
+    <span class="eyebrow-tag">英文練習題・PRACTICE</span>
+    <h1 class="page-title">來練習吧</h1>
+  </div>
+
+  <header class="site-header simple">
+    <a href="index.html" class="form-hint" style="display:block;padding:12px 0;">← 回成長頁面</a>
+  </header>
+
+  <main class="entry-main">
+    <section id="setupPanel" class="card">
+      <h2>選擇測驗範圍</h2>
+      <form id="setupForm">
+        <label>學生
+          <select id="quizStudent" required></select>
+        </label>
+        <label>單元
+          <select id="quizTopic" required></select>
+        </label>
+        <p class="form-hint">每次會從單元題庫裡隨機抽 20 題，可以反覆練習。</p>
+        <button type="submit">開始測驗</button>
+        <div id="setupMsg"></div>
+      </form>
+    </section>
+
+    <section id="quizPanel" class="card" hidden>
+      <p class="quiz-progress" id="quizProgress"></p>
+      <form id="quizForm"></form>
+      <button type="submit" form="quizForm" id="submitQuizBtn">交卷</button>
+    </section>
+
+    <section id="resultPanel" class="card" hidden>
+      <h2>測驗結果</h2>
+      <div class="quiz-result-score" id="resultScore"></div>
+      <div id="resultReview"></div>
+      <button class="btn-secondary" id="retryBtn" style="margin-top:16px;">再測一次</button>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="js/config.js" defer></script>
+  <script src="js/supabaseClient.js" defer></script>
+  <script src="js/quiz.js" defer></script>
+</body>
+</html>

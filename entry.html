@@ -6,15 +6,20 @@
 <title>家長輸入 · 成長記錄本</title>
 <link rel="stylesheet" href="css/style.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&family=Patrick+Hand&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <div class="page-head">
+    <span class="eyebrow-tag">家長專區・PARENT ACCESS</span>
+    <h1 class="page-title">家長輸入</h1>
+  </div>
+
   <header class="site-header simple">
     <a href="index.html" class="form-hint" style="display:block;padding:12px 0;">← 回成長頁面</a>
   </header>
 
   <main class="entry-main">
-    <section id="loginGate" class="card login-gate" hidden>
+    <section id="loginGate" class="card login-gate" data-rough="coffee" hidden>
       <h1>家長登入</h1>
       <p>請用 Google 帳號登入以新增或編輯成績。</p>
       <button id="googleLoginBtn">使用 Google 登入</button>
@@ -109,6 +114,25 @@
         </form>
       </div>
 
+      <div class="card">
+        <h2>英文練習題題庫匯入</h2>
+        <p class="form-hint">
+          請依照範本欄位（題號／題型mc或fill／題目／選項A～D／正解／提示解析）整理成
+          Excel或CSV後上傳。同一個檔案視為同一個單元，會用下面填的「單元名稱」整批匯入，
+          重複匯入同一單元會覆蓋掉同題號的舊題目。
+        </p>
+        <form id="quizImportForm">
+          <label>單元名稱（例如：現在簡單式）
+            <input type="text" id="quizTopicInput" required />
+          </label>
+          <label>題庫檔案（.xlsx / .csv）
+            <input type="file" id="quizFileInput" accept=".xlsx,.csv" required />
+          </label>
+          <button type="submit">匯入題庫</button>
+          <div id="quizImportMsg"></div>
+        </form>
+      </div>
+
       <div class="card" id="adminPanel" hidden>
         <h2>白名單管理</h2>
         <p class="form-hint">只有主管理帳號看得到這個區塊。</p>
@@ -125,9 +149,13 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
   <script src="js/config.js" defer></script>
   <script src="js/supabaseClient.js" defer></script>
   <script src="js/auth.js" defer></script>
   <script src="js/entry.js" defer></script>
+  <script src="js/quizImport.js" defer></script>
+  <script src="js/roughDecor.js" defer></script>
 </body>
 </html>

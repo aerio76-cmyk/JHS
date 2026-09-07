@@ -6,15 +6,21 @@
 <title>成長記錄本</title>
 <link rel="stylesheet" href="css/style.css" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Patrick+Hand&family=Nunito:wght@400;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&family=Patrick+Hand&display=swap" rel="stylesheet" />
 </head>
 <body>
+  <div class="page-head">
+    <span class="eyebrow-tag">成長記錄・GROWTH LOG</span>
+    <h1 class="page-title">學習成長手帳</h1>
+    <p class="page-subtitle">跟自己比，每一次段考都是一頁新的紀錄</p>
+  </div>
+
   <header class="site-header">
     <div class="student-tabs" id="studentTabs"></div>
   </header>
 
   <main>
-    <section class="card hero-companion" id="heroCompanion">
+    <section class="card hero-companion" id="heroCompanion" data-rough="coffee">
       <img class="companion-illustration" id="companionImg" src="" alt="成長夥伴" />
       <div class="speech-bubble" id="speechBubble">…</div>
     </section>
@@ -51,6 +57,12 @@
         <table id="historyTable"></table>
       </div>
     </section>
+
+    <section class="card" style="text-align:center;">
+      <h2>英文練習題</h2>
+      <p class="form-hint">隨機抽 20 題，可以反覆練習</p>
+      <a class="btn" href="quiz.html" style="display:inline-block;text-decoration:none;">去練習</a>
+    </section>
   </main>
 
   <footer class="site-footer">
@@ -59,9 +71,11 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js" defer></script>
   <script src="js/config.js" defer></script>
   <script src="js/supabaseClient.js" defer></script>
   <script src="js/stats.js" defer></script>
   <script src="js/dashboard.js" defer></script>
+  <script src="js/roughDecor.js" defer></script>
 </body>
 </html>
