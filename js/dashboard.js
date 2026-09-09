@@ -11,11 +11,14 @@ const state = {
   currentStudent: null,
   examScores: [],
   examRankings: [],
+  quizAttempts: [],
   sittings: [],
   selectedSubject: null,
   growthChart: null,
   subjectChart: null,
 };
+
+const HISTORY_PAGE_SIZE = 10; // 英文練習題記錄預設顯示筆數，超過用「顯示更多」展開
 
 async function loadStudents() {
   const { data, error } = await sbClient.from('students').select('*').order('enrolled_year');
@@ -56,6 +59,19 @@ async function loadExamRankings(studentId) {
   return (data || []).sort((a, b) => sittingOrder(a) - sittingOrder(b));
 }
 
+async function loadQuizAttempts(studentId) {
+  const { data, error } = await sbClient
+    .from('quiz_attempts')
+    .select('*')
+    .eq('student_id', studentId)
+    .order('taken_at', { ascending: false });
+  if (error) {
+    console.error(error);
+    return [];
+  }
+  return data || [];
+}
+
 async function loadQuote(category) {
   const { data, error } = await sbClient
     .from('motivational_quotes')
@@ -87,12 +103,14 @@ async function selectStudent(student) {
   state.currentStudent = student;
   renderStudentTabs();
 
-  const [examScores, examRankings] = await Promise.all([
+  const [examScores, examRankings, quizAttempts] = await Promise.all([
     loadExamScores(student.id),
     loadExamRankings(student.id),
+    loadQuizAttempts(student.id),
   ]);
   state.examScores = examScores;
   state.examRankings = examRankings;
+  state.quizAttempts = quizAttempts;
   state.sittings = buildSittings(examScores);
   state.selectedSubject = state.subjects[0]?.code || null;
 
@@ -104,6 +122,7 @@ async function selectStudent(student) {
   renderSemesterCompare();
   renderRankCard();
   renderHistoryTable();
+  renderQuizHistoryTable();
 }
 
 async function renderHeroCompanion() {
@@ -312,30 +331,127 @@ function renderRankCard() {
   `;
 }
 
+function examRowHtml(r) {
+  const sitting = { grade: r.grade, semester: r.semester, exam_type: r.exam_type };
+  const category = classifySubjectAt(state.examScores, r.subject, sitting) || 'insufficient_data';
+  return `
+    <tr>
+      <td>${GRADE_LABEL[r.grade]} ${SEMESTER_LABEL[r.semester]}<br>${EXAM_TYPE_LABEL[r.exam_type]}</td>
+      <td>${subjectName(r.subject)}</td>
+      <td class="score-num">${r.score}</td>
+      <td><span class="status-tag status-tag--${category}">${CATEGORY_LABEL[category]}</span></td>
+    </tr>`;
+}
+
+// 預設只顯示「目前最新的那個學期」，更早的學期收合起來，避免手機上一次要滑一長串
 function renderHistoryTable() {
-  const table = document.getElementById('historyTable');
+  const recentBody = document.getElementById('historyTableRecent');
+  const olderBody = document.getElementById('historyTableOlder');
+  const showMoreBtn = document.getElementById('showMoreExamBtn');
+
   const rows = [...state.examScores].sort((a, b) => sittingOrder(b) - sittingOrder(a));
 
-  const body = rows
-    .map((r) => {
-      const sitting = { grade: r.grade, semester: r.semester, exam_type: r.exam_type };
-      const category = classifySubjectAt(state.examScores, r.subject, sitting) || 'insufficient_data';
-      return `
-        <tr>
-          <td>${GRADE_LABEL[r.grade]} ${SEMESTER_LABEL[r.semester]}<br>${EXAM_TYPE_LABEL[r.exam_type]}</td>
-          <td>${subjectName(r.subject)}</td>
-          <td class="score-num">${r.score}</td>
-          <td><span class="status-tag status-tag--${category}">${CATEGORY_LABEL[category]}</span></td>
-        </tr>`;
-    })
-    .join('');
+  if (rows.length === 0) {
+    recentBody.innerHTML = '<tr><td colspan="4" class="form-hint">還沒有任何記錄</td></tr>';
+    olderBody.innerHTML = '';
+    olderBody.hidden = true;
+    showMoreBtn.hidden = true;
+    return;
+  }
 
-  table.innerHTML = `
-    <thead>
-      <tr><th>段考</th><th>科目</th><th>分數</th><th>判定</th></tr>
-    </thead>
-    <tbody>${body || '<tr><td colspan="4" class="form-hint">還沒有任何記錄</td></tr>'}</tbody>
-  `;
+  const latestSitting = state.sittings[state.sittings.length - 1];
+  const isRecent = (r) => r.grade === latestSitting.grade && r.semester === latestSitting.semester;
+
+  const recentRows = rows.filter(isRecent);
+  const olderRows = rows.filter((r) => !isRecent(r));
+
+  recentBody.innerHTML = recentRows.map(examRowHtml).join('');
+  olderBody.innerHTML = olderRows.map(examRowHtml).join('');
+  olderBody.hidden = true;
+  showMoreBtn.hidden = olderRows.length === 0;
+  showMoreBtn.textContent = '顯示更早的歷史紀錄';
+}
+
+function quizRowHtml(a) {
+  const date = new Date(a.taken_at).toLocaleDateString('zh-TW');
+  return `
+    <tr>
+      <td>${date}</td>
+      <td>${a.topic}</td>
+      <td class="score-num">${a.score} / ${a.total}</td>
+    </tr>`;
+}
+
+// 英文練習題沒有學期概念，改用「最近 N 筆」當預設顯示量，其餘收合
+function renderQuizHistoryTable() {
+  const recentBody = document.getElementById('quizHistoryRecent');
+  const olderBody = document.getElementById('quizHistoryOlder');
+  const showMoreBtn = document.getElementById('showMoreQuizBtn');
+
+  if (state.quizAttempts.length === 0) {
+    recentBody.innerHTML = '<tr><td colspan="3" class="form-hint">還沒有任何測驗記錄</td></tr>';
+    olderBody.innerHTML = '';
+    olderBody.hidden = true;
+    showMoreBtn.hidden = true;
+    return;
+  }
+
+  const recentRows = state.quizAttempts.slice(0, HISTORY_PAGE_SIZE);
+  const olderRows = state.quizAttempts.slice(HISTORY_PAGE_SIZE);
+
+  recentBody.innerHTML = recentRows.map(quizRowHtml).join('');
+  olderBody.innerHTML = olderRows.map(quizRowHtml).join('');
+  olderBody.hidden = true;
+  showMoreBtn.hidden = olderRows.length === 0;
+  showMoreBtn.textContent = '顯示更早的測驗記錄';
+}
+
+// 手機版分頁籤：切換 data-tab 對應區塊的顯示，桌面版由 CSS media query 整排隱藏籤列、
+// 卡片一律顯示，這裡的邏輯不會影響桌面版
+function applySectionFilter(target) {
+  document.querySelectorAll('main .card[data-tab]').forEach((card) => {
+    card.classList.toggle('tab-hidden', card.dataset.tab !== target);
+  });
+}
+
+function initSectionTabs() {
+  const tabs = document.querySelectorAll('#sectionTabs .section-tab');
+  tabs.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      tabs.forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      applySectionFilter(btn.dataset.section);
+    });
+  });
+
+  // 頁面剛載入時，套用目前預設 is-active 那個分頁籤的篩選（HTML 預設是「首頁」）
+  const initialTab = document.querySelector('#sectionTabs .section-tab.is-active') || tabs[0];
+  if (initialTab) applySectionFilter(initialTab.dataset.section);
+}
+
+// 歷史紀錄卡片內的段考成績／英文練習題記錄切換，跟螢幕大小無關，桌面/手機都適用
+function initHistorySubTabs() {
+  const tabs = document.querySelectorAll('#historySubTabs .section-tab');
+  const examPanel = document.getElementById('examHistoryPanel');
+  const quizPanel = document.getElementById('quizHistoryPanel');
+  tabs.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      tabs.forEach((b) => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const showQuiz = btn.dataset.history === 'quiz';
+      examPanel.hidden = showQuiz;
+      quizPanel.hidden = !showQuiz;
+    });
+  });
+
+  document.getElementById('showMoreExamBtn').addEventListener('click', (e) => {
+    document.getElementById('historyTableOlder').hidden = false;
+    e.target.hidden = true;
+  });
+  document.getElementById('showMoreQuizBtn').addEventListener('click', (e) => {
+    document.getElementById('quizHistoryOlder').hidden = false;
+    e.target.hidden = true;
+  });
 }
 
 async function init() {
@@ -349,6 +465,8 @@ async function init() {
   }
 
   renderStudentTabs();
+  initSectionTabs();
+  initHistorySubTabs();
   await selectStudent(state.students[0]);
 }
 

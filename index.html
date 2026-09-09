@@ -17,51 +17,83 @@
 
   <header class="site-header">
     <div class="student-tabs" id="studentTabs"></div>
+    <div class="section-tabs" id="sectionTabs">
+      <button class="section-tab is-active" data-section="home">首頁</button>
+      <button class="section-tab" data-section="growth">成長圖表</button>
+      <button class="section-tab" data-section="history">歷史紀錄</button>
+    </div>
   </header>
 
   <main>
-    <section class="card hero-companion" id="heroCompanion" data-rough="coffee">
+    <section class="card hero-companion" id="heroCompanion" data-rough="coffee" data-tab="home" data-col="full">
       <img class="companion-illustration" id="companionImg" src="" alt="成長夥伴" />
       <div class="speech-bubble" id="speechBubble">…</div>
     </section>
 
-    <section class="card">
-      <h2>成長曲線</h2>
-      <canvas id="growthChart" height="220"></canvas>
-    </section>
-
-    <section class="card">
+    <section class="card" data-tab="home" data-col="main">
       <h2>成長徽章</h2>
       <div class="badge-grid" id="badgeGrid"></div>
     </section>
 
-    <section class="card">
+    <section class="card" style="text-align:center;" data-tab="home" data-col="aside">
+      <h2>英文練習題</h2>
+      <p class="form-hint">隨機抽 20 題，可以反覆練習</p>
+      <a class="btn" href="quiz.html" style="display:inline-block;text-decoration:none;">去練習</a>
+    </section>
+
+    <section class="card" data-tab="growth" data-col="main">
+      <h2>成長曲線</h2>
+      <canvas id="growthChart" height="220"></canvas>
+    </section>
+
+    <section class="card" data-tab="growth" data-col="main">
       <h2>科目走勢</h2>
       <div class="student-tabs" id="subjectTabs" style="margin-bottom:12px;"></div>
       <canvas id="subjectChart" height="220"></canvas>
     </section>
 
-    <section class="card">
+    <section class="card" data-tab="growth" data-col="aside">
       <h2>學期比較</h2>
       <div class="compare-grid" id="compareGrid"></div>
     </section>
 
-    <section class="card" id="rankCard" hidden>
+    <section class="card" id="rankCard" data-tab="growth" data-col="aside" hidden>
       <h2>校排名次</h2>
       <div id="rankDisplay"></div>
     </section>
 
-    <section class="card">
+    <section class="card" data-tab="history" data-col="full">
       <h2>歷史紀錄</h2>
-      <div style="overflow-x:auto;">
-        <table id="historyTable"></table>
+      <div class="section-tabs" id="historySubTabs" style="margin-bottom:14px;">
+        <button class="section-tab is-active" data-history="exam">段考成績</button>
+        <button class="section-tab" data-history="quiz">英文練習題記錄</button>
       </div>
-    </section>
 
-    <section class="card" style="text-align:center;">
-      <h2>英文練習題</h2>
-      <p class="form-hint">隨機抽 20 題，可以反覆練習</p>
-      <a class="btn" href="quiz.html" style="display:inline-block;text-decoration:none;">去練習</a>
+      <div id="examHistoryPanel">
+        <div style="overflow-x:auto;">
+          <table id="historyTable">
+            <thead>
+              <tr><th>段考</th><th>科目</th><th>分數</th><th>判定</th></tr>
+            </thead>
+            <tbody id="historyTableRecent"></tbody>
+            <tbody id="historyTableOlder" hidden></tbody>
+          </table>
+        </div>
+        <button class="btn-secondary" id="showMoreExamBtn" style="margin-top:12px;" hidden>顯示更早的歷史紀錄</button>
+      </div>
+
+      <div id="quizHistoryPanel" hidden>
+        <div style="overflow-x:auto;">
+          <table id="quizHistoryTable">
+            <thead>
+              <tr><th>測驗日期</th><th>單元</th><th>分數</th></tr>
+            </thead>
+            <tbody id="quizHistoryRecent"></tbody>
+            <tbody id="quizHistoryOlder" hidden></tbody>
+          </table>
+        </div>
+        <button class="btn-secondary" id="showMoreQuizBtn" style="margin-top:12px;" hidden>顯示更早的測驗記錄</button>
+      </div>
     </section>
   </main>
 

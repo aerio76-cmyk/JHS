@@ -145,6 +145,40 @@ main {
   border-color: var(--coffee);
 }
 
+/* ========== 分頁籤（手機版用來切內容，桌面版會整排隱藏） ========== */
+.section-tabs {
+  display: flex;
+  gap: 8px;
+  max-width: 640px;
+  margin: 8px auto 0;
+  padding-bottom: 10px;
+  overflow-x: auto;
+}
+
+.section-tab {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  padding: 6px 16px;
+  border: 1.5px solid #D9CBA3;
+  border-radius: var(--radius-pill);
+  background: var(--card);
+  color: var(--ink-soft);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.section-tab.is-active {
+  background: var(--butter-tint);
+  border-color: var(--coffee);
+  color: var(--coffee-dark);
+}
+
+/* main底下的卡片預設用 data-tab 標記屬於哪個分頁，JS 用 .tab-hidden 切換顯示，
+   只在手機寬度下生效；桌面寬度不受影響（見下方 960px media query） */
+@media (max-width: 959px) {
+  .card[data-tab].tab-hidden { display: none; }
+}
+
 /* ========== 成長夥伴 hero ========== */
 .hero-companion {
   display: flex;
@@ -432,4 +466,28 @@ input, select {
 @media (min-width: 640px) {
   .hero-companion { padding: 32px; }
   .companion-illustration { width: 160px; height: 160px; }
+}
+
+/* ========== 桌面版：雙欄儀表板，取代手機版的分頁切換 ========== */
+@media (min-width: 960px) {
+  .page-head, main, .student-tabs, #sectionTabs {
+    max-width: 1080px;
+  }
+
+  /* 手機用來切內容的分頁籤，桌面版一次全部顯示，不需要這排籤 */
+  #sectionTabs { display: none; }
+
+  main {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  main .card[data-col="main"] { grid-column: 1; }
+  main .card[data-col="aside"] { grid-column: 2; }
+  main .card[data-col="full"] { grid-column: 1 / -1; }
+
+  /* 側欄比較窄，學期比較卡片改成單欄，避免兩個學期並排太擠 */
+  main .card[data-col="aside"] .compare-grid { grid-template-columns: 1fr; }
 }
