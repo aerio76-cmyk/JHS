@@ -1,17 +1,27 @@
 -- 國中學業成長記錄網頁工具 — Supabase Schema
--- 在 Supabase Dashboard -> SQL Editor 貼上整份執行一次即可。
+-- 只給「全新的 Supabase 專案」用：在 Dashboard -> SQL Editor 貼上整份執行一次即可。
+-- 已有舊版資料庫的話不要跑這份，改跑 supabase/migrations/ 的遷移檔。
 -- 不含任何真實姓名/Email，這些請依 README「初次設定」章節的說明另外手動執行。
 
 create extension if not exists pgcrypto;
 
 -- ========== 1. students：學生基本資料 ==========
+-- name 即前台顯示的英文名；avatar_url 有值時優先於 avatar_preset（內建手繪頭像代號）
 create table if not exists students (
   id uuid primary key default gen_random_uuid(),
   name text not null,
-  companion_type text not null check (companion_type in ('fox', 'dragon')),
+  theme_color text,
+  avatar_preset text,
   avatar_url text,
   enrolled_year int2 not null,
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  -- 限制名稱與 migrations/2026-10-19_01_additive.sql 一致
+  constraint students_theme_color_check check (theme_color ~ '^#[0-9A-Fa-f]{6}$'),
+  constraint students_avatar_preset_check check (avatar_preset in ('cat', 'bunny', 'bear', 'penguin')),
+  -- avatar_url 只接受本專案 avatars bucket 的公開網址（前台會當 <img src> 用）
+  constraint students_avatar_url_check check (
+    avatar_url is null or avatar_url ~ '^https://[a-z0-9]+\.supabase\.co/storage/v1/object/public/avatars/'
+  )
 );
 
 -- ========== 2. subjects：科目對照表（固定 5 科） ==========
@@ -57,7 +67,6 @@ create table if not exists motivational_quotes (
   category text not null check (category in ('progress', 'stable', 'fluctuation', 'peak')),
   content text not null,
   source text,
-  companion_reaction_key text,
   is_active boolean not null default true,
   created_at timestamptz not null default now()
 );
@@ -79,7 +88,7 @@ alter table admins enable row level security;
 
 -- 判斷目前登入者是否為白名單內的任何身分（admin 或 super_admin）
 create or replace function is_admin() returns boolean
-language sql security definer stable as $$
+language sql security definer stable set search_path = public as $$
   select exists (
     select 1 from admins where email = auth.jwt() ->> 'email'
   );
@@ -87,7 +96,7 @@ $$;
 
 -- 判斷目前登入者是否為 super_admin
 create or replace function is_super_admin() returns boolean
-language sql security definer stable as $$
+language sql security definer stable set search_path = public as $$
   select exists (
     select 1 from admins where email = auth.jwt() ->> 'email' and role = 'super_admin'
   );
@@ -132,3 +141,29 @@ create policy "super admin insert admins" on admins for insert with check (is_su
 create policy "super admin delete admins" on admins for delete using (
   is_super_admin() and email <> (auth.jwt() ->> 'email')
 );
+
+-- ========== Storage：學生頭像 ==========
+-- public bucket：前台用公開網址讀圖，不經過 RLS。
+-- ⚠ 前台只能用 getPublicUrl() 組網址；download()／createSignedUrl() 需要 select 權限，匿名會失敗。
+-- select 政策只開給白名單（客戶端 upsert／remove 需要），避免任何人透過 API 列出 bucket 內檔名。
+insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+values ('avatars', 'avatars', true, 2097152, array['image/jpeg', 'image/png', 'image/webp'])
+on conflict (id) do update set
+  public = excluded.public,
+  file_size_limit = excluded.file_size_limit,
+  allowed_mime_types = excluded.allowed_mime_types;
+
+drop policy if exists "admin read avatars" on storage.objects;
+drop policy if exists "admin insert avatars" on storage.objects;
+drop policy if exists "admin update avatars" on storage.objects;
+drop policy if exists "admin delete avatars" on storage.objects;
+
+create policy "admin read avatars" on storage.objects for select
+  using (bucket_id = 'avatars' and public.is_admin());
+create policy "admin insert avatars" on storage.objects for insert
+  with check (bucket_id = 'avatars' and public.is_admin());
+create policy "admin update avatars" on storage.objects for update
+  using (bucket_id = 'avatars' and public.is_admin())
+  with check (bucket_id = 'avatars' and public.is_admin());
+create policy "admin delete avatars" on storage.objects for delete
+  using (bucket_id = 'avatars' and public.is_admin());

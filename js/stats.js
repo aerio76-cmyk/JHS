@@ -78,9 +78,3 @@ function classifySubjectAt(examScores, subjectCode, sittingRow) {
   const historical = sameSubject.slice(0, idx).map((r) => r.score);
   return classifyScore(current.score, historical);
 }
-
-// 目前學生走到第幾個「學年進化階段」：依最新一次已記錄段考的年級，沒有資料則預設國一
-function currentCompanionStage(sittings) {
-  if (sittings.length === 0) return 1;
-  return sittings[sittings.length - 1].grade;
-}
