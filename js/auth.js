@@ -8,7 +8,8 @@ async function getSession() {
 function loginWithGoogle() {
   sbClient.auth.signInWithOAuth({
     provider: 'google',
-    options: { redirectTo: window.location.href.split('#')[0] },
+    // 只帶 origin + 路徑（不帶 query／hash），必須跟 Supabase Redirect URLs 的精確網址一致
+    options: { redirectTo: window.location.origin + window.location.pathname },
   });
 }
 

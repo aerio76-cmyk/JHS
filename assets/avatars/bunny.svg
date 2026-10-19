@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="兔子頭像">
+  <g fill="none" stroke="#3A3440" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- ears -->
+    <path d="M46 46 C40 32 38 17 42 9 C48 7 53 18 55 30 C56 36 56 41 55 45" fill="#FFFFFF"/>
+    <path d="M74 45 C79 33 84 20 82 11 C77 6 70 15 66 27 C64 34 64 40 65 45" fill="#FFFFFF"/>
+    <path d="M47 38 C45 30 44 22 45 16 C48 19 50 27 51 35" stroke-width="2.2" fill="#F7C3C9"/>
+    <path d="M73 37 C75 30 77 23 78 17 C75 19 72 26 70 34" stroke-width="2.2" fill="#F7C3C9"/>
+    <!-- head -->
+    <path d="M60 42 C81 41 95 55 95 72 C95 91 79 103 60 103 C40 104 25 91 25 72 C25 54 40 42 60 42 Z" fill="#FFFFFF"/>
+    <!-- eyes -->
+    <circle cx="47" cy="70" r="3.6" fill="#3A3440" stroke="none"/>
+    <circle cx="73" cy="70" r="3.6" fill="#3A3440" stroke="none"/>
+    <circle cx="48.3" cy="68.6" r="1.1" fill="#fff" stroke="none"/>
+    <circle cx="74.3" cy="68.6" r="1.1" fill="#fff" stroke="none"/>
+    <!-- nose & mouth -->
+    <path d="M57 78 C58.5 80 61.5 80 63 78" stroke-width="2.6"/>
+    <path d="M60 80 L60 84" stroke-width="2.4"/>
+    <path d="M60 84 C58 87 55 87 53 85" stroke-width="2.2"/>
+    <path d="M60 84 C62 87 65 87 67 85" stroke-width="2.2"/>
+  </g>
+  <ellipse cx="39" cy="80" rx="6" ry="3.5" fill="#F7B7BF" opacity=".75"/>
+  <ellipse cx="81" cy="80" rx="6" ry="3.5" fill="#F7B7BF" opacity=".75"/>
+</svg>

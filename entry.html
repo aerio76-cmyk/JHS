@@ -2,160 +2,139 @@
 <html lang="zh-Hant">
 <head>
 <meta charset="UTF-8" />
+<!-- CSP：只允許固定版本的 CDN 檔案、Google Fonts 與本專案 Supabase；換 CDN 版本時要同步改這裡與 integrity -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js; style-src 'self' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data: blob: https://cfalawxigobkpqjtcpzq.supabase.co; connect-src https://cfalawxigobkpqjtcpzq.supabase.co; base-uri 'none'; form-action 'self'; object-src 'none'" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>家長輸入 · 成長記錄本</title>
-<link rel="stylesheet" href="css/style.css" />
+<title>家長管理・成長記錄本</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@600;700&family=Noto+Sans+TC:wght@400;500;700&family=IBM+Plex+Mono:wght@400;600&family=Patrick+Hand&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/style.css" />
 </head>
 <body>
-  <div class="page-head">
-    <span class="eyebrow-tag">家長專區・PARENT ACCESS</span>
-    <h1 class="page-title">家長輸入</h1>
-  </div>
-
-  <header class="site-header simple">
-    <a href="index.html" class="form-hint" style="display:block;padding:12px 0;">← 回成長頁面</a>
+  <header class="site-header">
+    <div class="site-header__inner">
+      <p class="brand">成長記錄本・家長管理</p>
+      <div class="who" id="who" hidden>
+        <span id="loggedInEmail"></span>
+        <button class="btn" type="button" id="logoutBtn">登出</button>
+      </div>
+    </div>
   </header>
 
-  <main class="entry-main">
-    <section id="loginGate" class="card login-gate" data-rough="coffee" hidden>
-      <h1>家長登入</h1>
-      <p>請用 Google 帳號登入以新增或編輯成績。</p>
-      <button id="googleLoginBtn">使用 Google 登入</button>
+  <main>
+    <p class="load-msg" id="loadMsg" role="status">載入中…</p>
+
+    <!-- 未登入 -->
+    <section class="card login-card" id="loginGate" aria-labelledby="loginTitle" hidden>
+      <h1 id="loginTitle">家長登入</h1>
+      <p>用已加入白名單的 Google 帳號登入，才能輸入成績與管理學生資料。</p>
+      <button class="btn btn--primary" type="button" id="googleLoginBtn">用 Google 登入</button>
+      <p class="hint"><a href="index.html">← 回成長記錄本</a></p>
     </section>
 
-    <section id="noAccessPanel" class="card" hidden>
-      <p>這個 Google 帳號目前沒有編輯權限，如果需要權限請聯絡主管理帳號。</p>
-      <button class="btn-secondary" id="logoutBtnNoAccess">登出</button>
+    <!-- 已登入但不在白名單 -->
+    <section class="card login-card" id="noAccessPanel" aria-labelledby="noAccessTitle" hidden>
+      <h1 id="noAccessTitle">這個帳號沒有編輯權限</h1>
+      <p>如果需要權限，請聯絡主管理帳號把你的 Email 加入白名單。</p>
+      <button class="btn" type="button" id="logoutBtnNoAccess">登出</button>
     </section>
 
-    <section id="entryPanel" hidden>
-      <div class="card" style="display:flex;justify-content:space-between;align-items:center;">
-        <span id="loggedInEmail" class="form-hint"></span>
-        <button class="btn-secondary" id="logoutBtn">登出</button>
-      </div>
+    <!-- 管理介面 -->
+    <div class="admin-layout" id="entryPanel" hidden>
+      <nav class="admin-nav" aria-label="管理項目">
+        <a href="#/scores" data-route="scores">段考成績</a>
+        <a href="#/ranks" data-route="ranks">校排名</a>
+        <a href="#/students" data-route="students">學生與頭像</a>
+        <a href="#/admins" data-route="admins" hidden>白名單</a>
+      </nav>
 
-      <div class="card">
-        <h2>新增 / 編輯成績</h2>
-        <form id="scoreForm">
-          <label>學生
-            <select id="scoreStudent" required></select>
-          </label>
-          <div class="subject-input-row">
-            <label>年級
-              <select id="scoreGrade" required>
-                <option value="1">國一</option>
-                <option value="2">國二</option>
-                <option value="3">國三</option>
-              </select>
-            </label>
-            <label>學期
-              <select id="scoreSemester" required>
-                <option value="1">上學期</option>
-                <option value="2">下學期</option>
-              </select>
-            </label>
-            <label>段考
-              <select id="scoreExamType" required>
-                <option value="1">第一次段考</option>
-                <option value="2">第二次段考</option>
-                <option value="3">第三次段考</option>
-              </select>
-            </label>
+      <div>
+        <!-- 段考成績 -->
+        <section class="view stack" data-view="scores" aria-labelledby="scoresTitle">
+          <h1 class="section-title" id="scoresTitle">段考成績</h1>
+          <form class="card stack" id="scoreForm" novalidate>
+            <fieldset class="field">
+              <legend>哪一次段考</legend>
+              <div class="form-row exam-picker" data-picker="score"></div>
+            </fieldset>
+            <p class="hint" id="scoreStatus" role="status"></p>
+            <fieldset class="plain stack" id="scoreFields" disabled>
+            <fieldset class="field">
+              <legend>各科分數 <small class="hint">（0–100，空白＝這科沒考；把已有的分數清空會刪除那科）</small></legend>
+              <div class="form-row" id="subjectInputs"></div>
+            </fieldset>
+            <div class="field field--narrow">
+              <label for="scoreExamDate">考試日期（選填）</label>
+              <input class="input" type="date" id="scoreExamDate" />
+            </div>
+            <div class="actions"><button class="btn btn--primary" type="submit">儲存成績</button></div>
+            </fieldset>
+            <div class="msg-area" data-msg="score"></div>
+          </form>
+        </section>
+
+        <!-- 校排名 -->
+        <section class="view stack" data-view="ranks" aria-labelledby="ranksTitle" hidden>
+          <h1 class="section-title" id="ranksTitle">校排名</h1>
+          <form class="card stack" id="rankForm" novalidate>
+            <fieldset class="field">
+              <legend>哪一次段考</legend>
+              <div class="form-row exam-picker" data-picker="rank"></div>
+            </fieldset>
+            <p class="hint" id="rankStatus" role="status"></p>
+            <fieldset class="plain stack" id="rankFields" disabled>
+            <div class="form-row">
+              <div class="field">
+                <label for="rankValue">名次</label>
+                <input class="input" type="number" inputmode="numeric" min="1" step="1" id="rankValue" />
+              </div>
+              <div class="field">
+                <label for="rankTotal">全校人數</label>
+                <input class="input" type="number" inputmode="numeric" min="1" step="1" id="rankTotal" />
+              </div>
+            </div>
+            <div class="actions"><button class="btn btn--primary" type="submit">儲存排名</button></div>
+            </fieldset>
+            <div class="msg-area" data-msg="rank"></div>
+          </form>
+        </section>
+
+        <!-- 學生與頭像 -->
+        <section class="view stack" data-view="students" aria-labelledby="studentsTitle" hidden>
+          <h1 class="section-title" id="studentsTitle">學生與頭像</h1>
+          <div class="cols cols--even" id="studentCards"></div>
+          <p class="hint">前台只會顯示英文名、頭像與成績；請不要填入真實姓名、學校或班級。</p>
+        </section>
+
+        <!-- 白名單（只有主管理帳號） -->
+        <section class="view stack" data-view="admins" aria-labelledby="adminsTitle" hidden>
+          <h1 class="section-title" id="adminsTitle">白名單</h1>
+          <div class="card stack">
+            <p class="hint">白名單裡的 Google 帳號可以輸入成績與管理學生。主管理帳號不能在這裡移除。</p>
+            <ul class="admin-list" id="adminList"></ul>
+            <form class="stack" id="addAdminForm" novalidate>
+              <div class="field">
+                <label for="newAdminEmail">新增白名單 Email</label>
+                <input class="input" type="email" id="newAdminEmail" autocomplete="off" />
+              </div>
+              <p class="hint" id="adminEmailHint">註冊目前是關閉的：對方的 Google 帳號要先出現在 Supabase 的 Authentication → Users，才登入得了。</p>
+              <div class="actions"><button class="btn btn--primary" type="submit">加入白名單</button></div>
+              <div class="msg-area" data-msg="admin"></div>
+            </form>
           </div>
-          <label>考試日期（選填）
-            <input type="date" id="scoreExamDate" />
-          </label>
-          <div class="subject-input-row" id="subjectInputs"></div>
-          <button type="submit">儲存成績</button>
-          <div id="scoreFormMsg"></div>
-        </form>
+        </section>
       </div>
-
-      <div class="card">
-        <h2>校排名次</h2>
-        <form id="rankForm">
-          <label>學生
-            <select id="rankStudent" required></select>
-          </label>
-          <div class="subject-input-row">
-            <label>年級
-              <select id="rankGrade" required>
-                <option value="1">國一</option>
-                <option value="2">國二</option>
-                <option value="3">國三</option>
-              </select>
-            </label>
-            <label>學期
-              <select id="rankSemester" required>
-                <option value="1">上學期</option>
-                <option value="2">下學期</option>
-              </select>
-            </label>
-            <label>段考
-              <select id="rankExamType" required>
-                <option value="1">第一次段考</option>
-                <option value="2">第二次段考</option>
-                <option value="3">第三次段考</option>
-              </select>
-            </label>
-          </div>
-          <div class="subject-input-row">
-            <label>名次
-              <input type="number" id="rankValue" min="1" required />
-            </label>
-            <label>該次全體人數
-              <input type="number" id="rankTotal" min="1" required />
-            </label>
-          </div>
-          <button type="submit">儲存排名</button>
-          <div id="rankFormMsg"></div>
-        </form>
-      </div>
-
-      <div class="card">
-        <h2>英文練習題題庫匯入</h2>
-        <p class="form-hint">
-          請依照範本欄位（題號／題型mc或fill／題目／選項A～D／正解／提示解析）整理成
-          Excel或CSV後上傳。同一個檔案視為同一個單元，會用下面填的「單元名稱」整批匯入，
-          重複匯入同一單元會覆蓋掉同題號的舊題目。
-        </p>
-        <form id="quizImportForm">
-          <label>單元名稱（例如：現在簡單式）
-            <input type="text" id="quizTopicInput" required />
-          </label>
-          <label>題庫檔案（.xlsx / .csv）
-            <input type="file" id="quizFileInput" accept=".xlsx,.csv" required />
-          </label>
-          <button type="submit">匯入題庫</button>
-          <div id="quizImportMsg"></div>
-        </form>
-      </div>
-
-      <div class="card" id="adminPanel" hidden>
-        <h2>白名單管理</h2>
-        <p class="form-hint">只有主管理帳號看得到這個區塊。</p>
-        <ul id="adminList" style="list-style:none;padding:0;margin:0;"></ul>
-        <form id="addAdminForm" style="margin-top:16px;">
-          <label>新增白名單 Email
-            <input type="email" id="newAdminEmail" required />
-          </label>
-          <button type="submit">新增</button>
-          <div id="addAdminMsg"></div>
-        </form>
-      </div>
-    </section>
+    </div>
   </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous" defer></script>
   <script src="js/config.js" defer></script>
   <script src="js/supabaseClient.js" defer></script>
   <script src="js/auth.js" defer></script>
+  <script src="js/stats.js" defer></script>
+  <script src="js/milestones.js" defer></script>
+  <script src="js/entryLogic.js" defer></script>
   <script src="js/entry.js" defer></script>
-  <script src="js/quizImport.js" defer></script>
-  <script src="js/roughDecor.js" defer></script>
 </body>
 </html>
