@@ -69,19 +69,34 @@ v2.0 改版時（2026-10-19）資料庫是空的，所以直接刪除重建，�
 JHS/                    # 省略規劃書、交接檔等協作文件
 ├── index.html          # 公開成長儀表板
 ├── entry.html          # 家長輸入頁（需登入）
-├── css/style.css
+├── css/
+│   ├── style.css         # v2.0 設計 token + 版面（前台）
+│   └── entry-legacy.css  # 家長端舊樣式，Phase 3 改版後移除
 ├── js/
 │   ├── config.js        # Supabase 連線設定
 │   ├── supabaseClient.js
 │   ├── stats.js          # 判定邏輯（進步中/穩定發揮/醞釀成長期/個人巔峰）
+│   ├── milestones.js     # 里程碑、學年地圖分級、排名變化等純函式
 │   ├── dashboard.js      # index.html 用
 │   ├── auth.js           # entry.html 共用登入邏輯
 │   └── entry.js          # entry.html 用
+├── assets/avatars/       # 內建手繪頭像（cat, bunny, bear, penguin）
+├── tests/                # node --test 單元測試（stats / milestones）
 ├── mockups/              # v2.0 設計模擬圖（靜態、假資料）
 └── supabase/
     ├── schema.sql        # 全新安裝用
     └── seed_data.sql
 ```
+
+## 測試
+
+計算邏輯（`js/stats.js`、`js/milestones.js`）是純函式，用 Node 內建測試執行，不需安裝任何套件：
+
+```
+npm test
+```
+
+（等同 `node --test "tests/**/*.test.js"`；Node 24 不接受只給資料夾 `tests/`。）
 
 ## 權限模型
 

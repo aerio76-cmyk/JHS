@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="企鵝頭像">
+  <g fill="none" stroke="#3A3440" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
+    <!-- head -->
+    <path d="M60 22 C84 21 99 41 98 64 C98 88 81 103 60 103 C38 104 22 88 22 64 C22 41 36 22 60 22 Z" fill="#4A5868"/>
+    <!-- face -->
+    <path d="M60 46 C66 39 79 38 84 47 C90 57 88 75 82 86 C76 95 44 96 38 86 C32 75 30 57 36 47 C41 38 54 39 60 46 Z" fill="#FFFFFF" stroke-width="2.8"/>
+    <!-- tuft -->
+    <path d="M56 23 C56 17 60 14 64 15 C62 18 62 20 63 23" stroke-width="2.6" fill="#4A5868"/>
+    <!-- eyes -->
+    <circle cx="48" cy="62" r="3.6" fill="#3A3440" stroke="none"/>
+    <circle cx="72" cy="62" r="3.6" fill="#3A3440" stroke="none"/>
+    <circle cx="49.3" cy="60.6" r="1.1" fill="#fff" stroke="none"/>
+    <circle cx="73.3" cy="60.6" r="1.1" fill="#fff" stroke="none"/>
+    <!-- beak -->
+    <path d="M53 71 C56 68 64 68 67 71 C65 76 62 78 60 78 C58 78 55 76 53 71 Z" fill="#F2B04A" stroke-width="2.6"/>
+  </g>
+  <ellipse cx="41" cy="73" rx="5.5" ry="3.2" fill="#F4A79A" opacity=".75"/>
+  <ellipse cx="79" cy="73" rx="5.5" ry="3.2" fill="#F4A79A" opacity=".75"/>
+</svg>

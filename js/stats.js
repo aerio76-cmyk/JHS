@@ -11,6 +11,8 @@ const CATEGORY_LABEL = {
   insufficient_data: '記錄累積中',
 };
 
+const EPS = 1e-9;
+
 function sittingKey(row) {
   return `${row.grade}-${row.semester}-${row.exam_type}`;
 }
@@ -32,7 +34,8 @@ function buildSittings(examScores) {
   const sittings = Array.from(map.values()).map((s) => {
     const values = Object.values(s.scores);
     const total = values.reduce((a, b) => a + b, 0);
-    const average = values.length ? total / values.length : null;
+    // 四捨五入到 1e-6：消除浮點加總順序造成的尾差（資料庫回傳順序不固定）
+    const average = values.length ? Math.round((total / values.length) * 1e6) / 1e6 : null;
     return { ...s, total, average, subjectCount: values.length };
   });
   sittings.sort((a, b) => sittingOrder(a) - sittingOrder(b));
@@ -49,10 +52,12 @@ function classifyScore(currentScore, historicalScores) {
   const std = Math.sqrt(variance);
   const maxHistorical = Math.max(...historicalScores);
 
-  if (currentScore > maxHistorical) return 'peak';
-  if (currentScore >= mean + std) return 'progress';
-  if (currentScore >= mean - 0.5 * std && currentScore <= mean + 0.5 * std) return 'stable';
-  if (currentScore <= mean - std) return 'fluctuation';
+  // 門檻不變；EPS 只用來吸收浮點誤差，避免剛好落在 ±1σ 邊界時判錯
+  if (currentScore > maxHistorical + EPS) return 'peak';
+  // 歷史全部同分（std = 0）時，跟過去一樣不算「進步中」，落到下一行的穩定發揮（2026-10-19 使用者決定）
+  if (std > EPS && currentScore >= mean + std - EPS) return 'progress';
+  if (currentScore >= mean - 0.5 * std - EPS && currentScore <= mean + 0.5 * std + EPS) return 'stable';
+  if (currentScore <= mean - std + EPS) return 'fluctuation';
   return 'stable';
 }
 
@@ -77,4 +82,12 @@ function classifySubjectAt(examScores, subjectCode, sittingRow) {
   const current = sameSubject[idx];
   const historical = sameSubject.slice(0, idx).map((r) => r.score);
   return classifyScore(current.score, historical);
+}
+
+// 讓 node --test 可以 require；瀏覽器沒有 module，不受影響
+if (typeof module !== 'undefined') {
+  module.exports = {
+    EPS, EXAM_TYPE_LABEL, SEMESTER_LABEL, GRADE_LABEL, CATEGORY_LABEL,
+    sittingKey, sittingOrder, buildSittings, classifyScore, classifyLatestSitting, classifySubjectAt,
+  };
 }
