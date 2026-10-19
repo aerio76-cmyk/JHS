@@ -2,7 +2,7 @@
 
 國中學業成長記錄網頁工具：段考成績紀錄 + 成長分析，一律「跟自己比」。
 純前端（無框架）+ GitHub Pages + Chart.js + Supabase（資料庫／Auth／Storage）。
-規格見 `國中學業成長記錄網頁工具_規劃書_v2.0.md`。
+規格見 `國中學業成長記錄網頁工具_規劃書_v2.1.md`。
 
 ## 初次設定步驟
 
@@ -46,6 +46,10 @@ Settings → API 頁面看到的值。這組 anon key 設計上就是公開的�
 Supabase Dashboard → Authentication → Providers → Google，照官方引導設定 Google Cloud
 OAuth Client ID/Secret。**Redirect URL** 記得設定成你的 GitHub Pages 網址（例如
 `https://aerio76-cmyk.github.io/JHS/entry.html`），不然登入後會跳轉失敗。
+
+目前 Authentication 設定**關閉了「Allow new users to sign up」**：家長的 Google 帳號必須**已經存在於
+Authentication → Users**，且 email 跟 `admins` 白名單一致，否則第一次登入會被拒絕。
+之後要加第二位家長時，先暫時開啟註冊讓對方登入一次（或在 Users 頁手動建立），再關回來。
 
 ### 5. 開通 GitHub Pages
 
