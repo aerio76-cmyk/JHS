@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-student="enisa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>成長記錄本（模擬圖）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="css/mock.css" />
+</head>
+<body>
+  <div class="mock-bar" role="note">
+    <strong>Phase 0 模擬圖・假資料</strong>
+    <span>資料量：<a data-mode="full" href="#">完整</a>／<a data-mode="one" href="#">只有 1 筆</a>／<a data-mode="empty" href="#">0 筆</a></span>
+    <a href="parent.html">家長端：學生管理 →</a>
+  </div>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <p class="brand">成長記錄本</p>
+      <div class="student-switch" id="studentSwitch" role="group" aria-label="切換學生"></div>
+      <nav class="tabs" aria-label="頁面">
+        <a href="#/home" data-route="home">首頁</a>
+        <a href="#/growth" data-route="growth">成長圖表</a>
+        <a href="#/map" data-route="map">學年地圖</a>
+        <a href="#/history" data-route="history">歷史紀錄</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- 首頁 -->
+    <section class="view" data-view="home" aria-labelledby="homeTitle">
+      <h1 class="visually-hidden" id="homeTitle">首頁</h1>
+      <div class="cols">
+        <div class="stack">
+          <div class="card greet">
+            <div class="avatar-ring"><img id="greetAvatar" alt="" /></div>
+            <div>
+              <p class="greet__name" id="greetName"></p>
+              <p class="bubble" id="greetQuote"></p>
+            </div>
+          </div>
+          <div class="tiles" id="tiles"></div>
+          <div class="card" id="verdictCard"></div>
+        </div>
+        <div class="stack">
+          <div class="card" id="rankCard"></div>
+          <div class="card" id="milestoneCard"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 成長圖表 -->
+    <section class="view" data-view="growth" aria-labelledby="growthTitle" hidden>
+      <h1 class="visually-hidden" id="growthTitle">成長圖表</h1>
+      <div class="cols">
+        <div class="stack">
+          <div class="card" id="avgCard">
+            <h2>平均走勢 <small>18 次段考</small></h2>
+            <div class="chart-scroll"><div class="chart-box"><canvas id="avgChart" role="img" aria-label="各次段考平均分數折線圖"></canvas></div></div>
+            <p class="scroll-hint">← 左右滑動看完整 18 次 →</p>
+          </div>
+          <div class="card" id="subjectCard">
+            <h2>科目走勢</h2>
+            <div class="chips" id="subjectChips" role="group" aria-label="選擇科目"></div>
+            <div class="chart-scroll"><div class="chart-box"><canvas id="subjectChart" role="img" aria-label="單一科目分數折線圖"></canvas></div></div>
+          </div>
+          <div class="card" id="rankTrendCard">
+            <h2>校排名走勢 <small>越上面名次越前</small></h2>
+            <div class="chart-scroll"><div class="chart-box"><canvas id="rankChart" role="img" aria-label="校排名折線圖，Y 軸反向"></canvas></div></div>
+          </div>
+        </div>
+        <div class="stack">
+          <div class="card" id="radarCard">
+            <h2>科目雷達 <small id="radarCaption"></small></h2>
+            <div class="chart-box chart-box--radar"><canvas id="radarChart" role="img" aria-label="本次與上次各科分數雷達圖"></canvas></div>
+          </div>
+          <div class="card" id="termCard"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 學年地圖 -->
+    <section class="view" data-view="map" aria-labelledby="mapTitle" hidden>
+      <div class="yearmap-layout">
+        <div class="card">
+          <h1 class="visually-hidden">學年地圖</h1>
+          <h2 id="mapTitle">學年地圖 <small>三年 18 次段考，點格子看那次的回顧</small></h2>
+          <div id="yearMap"></div>
+        </div>
+        <div class="card" id="mapAside"></div>
+      </div>
+    </section>
+
+    <!-- 歷史紀錄 -->
+    <section class="view" data-view="history" aria-labelledby="historyTitle" hidden>
+      <div class="card">
+        <h1 class="visually-hidden">歷史紀錄</h1>
+        <h2 id="historyTitle">段考成績紀錄</h2>
+        <div id="historyBody"></div>
+      </div>
+    </section>
+
+    <!-- 段考回顧 -->
+    <section class="view" data-view="exam" aria-labelledby="examTitle" hidden>
+      <div id="examBody"></div>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.6/dist/chart.umd.min.js"></script>
+  <script src="../js/stats.js"></script>
+  <script src="js/fakeData.js"></script>
+  <script src="js/model.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
