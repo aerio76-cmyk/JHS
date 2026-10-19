@@ -13,7 +13,7 @@
 1. `supabase/schema.sql`（建表 + RLS 政策 + 頭像用的 `avatars` Storage bucket）
 2. `supabase/seed_data.sql`（5 科科目清單 + 32 筆勵志小語）
 
-已經有舊版資料庫的話，不要重跑 schema.sql，改跑 `supabase/migrations/` 裡的遷移檔（見下方「資料庫遷移」）。
+`schema.sql` 只給全新專案用；要重建既有資料庫，見下方「資料庫重建」。
 
 ### 2. 手動塞入第一筆白名單資料（不要寫進版控）
 
@@ -52,15 +52,16 @@ OAuth Client ID/Secret。**Redirect URL** 記得設定成你的 GitHub Pages 網
 Repo Settings → Pages → Source 選 `main` 分支 / root，存檔後等幾分鐘即可透過
 `https://aerio76-cmyk.github.io/JHS/` 瀏覽。
 
-## 資料庫遷移（v1 → v2.0）
+## 資料庫重建
 
-v2.0 移除了英文練習題系統與成長夥伴角色，資料庫變更拆成兩支，**都由使用者在 SQL Editor 手動執行**，順序固定：
+v2.0 改版時（2026-10-19）資料庫是空的，所以直接刪除重建，沒有走遷移。之後若要重建：
+把 `schema.sql`、`seed_data.sql` 和上面第 2 步的白名單／學生 insert 依序在 SQL Editor 執行即可
+（本機的 `supabase/*.local.sql` 可放含 email 的合併版，已被 `.gitignore` 排除）。
 
-1. 匯出 `students`、`exam_scores`、`exam_rankings`、`motivational_quotes` 的 CSV 備份
-2. 執行 `supabase/migrations/2026-10-19_01_additive.sql`（只新增欄位、頭像 bucket 與政策，舊版前台不受影響）。
-   執行完最後的查詢會列出學生，確認 Enisa、Milo 都有 `theme_color` 與 `avatar_preset`；若是空的，代表名字沒對上，請手動 update
-3. 部署 v2.0 前台，確認正常
-4. 執行 `supabase/migrations/2026-10-19_02_destructive.sql`（刪除 `companion_type`、`companion_reaction_key`、英文練習題的表與函式；**無法復原**）
+## Supabase 防暫停
+
+免費方案連續 7 天沒有活動會被暫停。`.github/workflows/supabase-keepalive.yml` 每 3 天讀一次資料庫
+（只在 `main` 分支執行）；失敗時 GitHub 會寄信通知，到 Supabase Dashboard 按 Restore 即可。
 
 ## 專案結構
 
@@ -79,8 +80,7 @@ JHS/                    # 省略規劃書、交接檔等協作文件
 ├── mockups/              # v2.0 設計模擬圖（靜態、假資料）
 └── supabase/
     ├── schema.sql        # 全新安裝用
-    ├── seed_data.sql
-    └── migrations/       # 既有資料庫的升級腳本（手動執行）
+    └── seed_data.sql
 ```
 
 ## 權限模型

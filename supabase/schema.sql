@@ -1,6 +1,5 @@
 -- 國中學業成長記錄網頁工具 — Supabase Schema
 -- 只給「全新的 Supabase 專案」用：在 Dashboard -> SQL Editor 貼上整份執行一次即可。
--- 已有舊版資料庫的話不要跑這份，改跑 supabase/migrations/ 的遷移檔。
 -- 不含任何真實姓名/Email，這些請依 README「初次設定」章節的說明另外手動執行。
 
 create extension if not exists pgcrypto;
@@ -15,7 +14,6 @@ create table if not exists students (
   avatar_url text,
   enrolled_year int2 not null,
   created_at timestamptz not null default now(),
-  -- 限制名稱與 migrations/2026-10-19_01_additive.sql 一致
   constraint students_theme_color_check check (theme_color ~ '^#[0-9A-Fa-f]{6}$'),
   constraint students_avatar_preset_check check (avatar_preset in ('cat', 'bunny', 'bear', 'penguin')),
   -- avatar_url 只接受本專案 avatars bucket 的公開網址（前台會當 <img src> 用）
