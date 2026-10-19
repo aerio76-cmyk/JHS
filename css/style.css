@@ -247,6 +247,14 @@ a.cell:hover { transform: translateY(-2px) rotate(-1deg); }
 }
 /* 只藏可見的小字；.visually-hidden 的報讀文字要留著 */
 @media (max-width: 639px) { .cell span:not(.visually-hidden) { display: none; } }
+/* 手機：年級改放在每一列上方，6 格平分整列寬，360 px 時每格約 45 px（觸控目標 ≥ 44 px） */
+@media (max-width: 639px) {
+  .yearmap { grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 4px; }
+  .yearmap__corner { display: none; }
+  .yearmap__rowhead { grid-column: 1 / -1; margin-top: 6px; font-size: .95rem; }
+}
+.chart-data { margin-top: 8px; }
+.chart-data caption { text-align: left; }
 
 .legend { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; margin-top: 14px; font-size: .82rem; color: var(--ink-soft); }
 .legend__scale { display: inline-flex; gap: 3px; align-items: center; }

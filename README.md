@@ -62,6 +62,18 @@ v2.0 改版時（2026-10-19）資料庫是空的，所以直接刪除重建，�
 把 `schema.sql`、`seed_data.sql` 和上面第 2 步的白名單／學生 insert 依序在 SQL Editor 執行即可
 （本機的 `supabase/*.local.sql` 可放含 email 的合併版，已被 `.gitignore` 排除）。
 
+## 安全強化 patch
+
+`supabase/patches/2026-10-19_security_hardening.sql`（2026-10-19 安全稽核後新增），在 `schema.sql` 之後執行：
+
+- 白名單判斷改用 **Google 登入身分的 email**（`auth.identities`），使用者自己改不了，不再信任可被修改的帳號 email。
+- `admins` 只能新增／刪除一般管理員；`students.name` 限英文名；`avatar_url` 限本專案 avatars bucket。
+- 檔內寫死本專案 ref（`cfalawxigobkpqjtcpzq`），換專案時要一併修改。
+- **執行前提**：每個 super_admin 都要先用 Google 登入過一次；否則 patch 會自動中止（避免把自己鎖在門外）。
+- 新專案的順序：`schema.sql` → `seed_data.sql` → 用 Google 登入一次 → 手動 insert 白名單 → 這份 patch。
+
+Authentication 設定建議：**Confirm email、Secure email change 保持開啟**；Redirect URLs 只放精確網址（不要用 `*`）。
+
 ## Supabase 防暫停
 
 免費方案連續 7 天沒有活動會被暫停。`.github/workflows/supabase-keepalive.yml` 每 3 天讀一次資料庫
@@ -85,10 +97,17 @@ JHS/                    # 省略規劃書、交接檔等協作文件
 │   └── entry.js          # entry.html 用
 ├── assets/avatars/       # 內建手繪頭像（cat, bunny, bear, penguin）
 ├── tests/                # node --test 單元測試（stats / milestones）
-├── mockups/              # v2.0 設計模擬圖（靜態、假資料）
 └── supabase/
     ├── schema.sql        # 全新安裝用
     └── seed_data.sql
+```
+
+## 設計模擬圖
+
+Phase 0 的靜態模擬圖（假資料）不放在上線的網站裡，保存在 git tag `phase0-mockups`：
+
+```
+git checkout phase0-mockups -- mockups/   # 取回到工作目錄（看完可刪除，不要 commit）
 ```
 
 ## 測試

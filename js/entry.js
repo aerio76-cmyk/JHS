@@ -22,6 +22,7 @@ const h = (tag, attrs = {}, ...children) => {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
     if (k === 'class') node.className = v;
+    else if (k === 'style') node.style.cssText = v; // 走 CSSOM，不受 CSP 的 inline style 限制
     else if (k === 'text') node.textContent = v;
     else node.setAttribute(k, v);
   }

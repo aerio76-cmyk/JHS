@@ -27,6 +27,7 @@ const el = (tag, attrs = {}, ...children) => {
   const node = document.createElement(tag);
   for (const [k, v] of Object.entries(attrs)) {
     if (k === 'class') node.className = v;
+    else if (k === 'style') node.style.cssText = v; // 走 CSSOM，不受 CSP 的 inline style 限制
     else if (k === 'text') node.textContent = v;
     else node.setAttribute(k, v);
   }
@@ -360,9 +361,24 @@ function showEmptyChart(card, title, body) {
 
 function resetCard(id) {
   const card = document.getElementById(id);
-  card.querySelectorAll('.empty').forEach((n) => n.remove());
+  card.querySelectorAll('.empty, .chart-data').forEach((n) => n.remove());
   card.querySelectorAll('.chart-scroll, .chart-box--radar, .scroll-hint').forEach((n) => (n.hidden = false));
   return card;
+}
+
+// 圖表下方可收合的數據表：canvas 對報讀器與鍵盤使用者沒有內容，數字在這裡都讀得到
+function chartDataTable(caption, headers, rows) {
+  const table = el('table', { class: 'score-table' }, el('caption', { class: 'visually-hidden', text: caption }));
+  const hr = el('tr');
+  for (const head of headers) hr.append(el('th', { scope: 'col', text: head }));
+  const tb = el('tbody');
+  for (const row of rows) {
+    const tr = el('tr', {}, el('th', { scope: 'row', text: row[0] }));
+    for (const cell of row.slice(1)) tr.append(el('td', { class: 'num', text: cell }));
+    tb.append(tr);
+  }
+  table.append(el('thead', {}, hr), tb);
+  return el('details', { class: 'more chart-data' }, el('summary', { text: '看數據表' }), el('div', { class: 'table-scroll' }, table));
 }
 
 function radarChart(canvas, latest, prev, accent) {
@@ -423,6 +439,7 @@ function renderGrowth(d) {
       }),
       plugins: [handNote],
     }));
+    avgCard.append(chartDataTable('各次段考平均', ['段考', '平均'], sittings.map((s) => [slotLongLabel(s), formatScore(s.average)])));
   }
 
   // 科目走勢
@@ -451,6 +468,8 @@ function renderGrowth(d) {
       data: { labels: SLOT_LABELS, datasets: [{ data: series, borderColor: accentInk, pointBackgroundColor: '#fff', pointBorderWidth: 2.5, pointRadius: 5, borderWidth: 2.5, tension: 0.35 }] },
       options: baseOptions(),
     }));
+    subjCard.append(chartDataTable(`${subjectName(state.subject)}各次分數`, ['段考', subjectName(state.subject)],
+      sittings.map((s) => [slotLongLabel(s), s.scores[state.subject] == null ? '未登錄' : String(s.scores[state.subject])])));
   }
 
   // 校排名（反向 Y 軸：越上面名次越前）
@@ -477,6 +496,8 @@ function renderGrowth(d) {
         },
       }),
     }));
+    rankCard.append(chartDataTable('各次校排名', ['段考', '名次', '全校人數'],
+      [...rankings].sort((a, b) => sittingOrder(a) - sittingOrder(b)).map((r) => [slotLongLabel(r), `第 ${r.rank} 名`, `${r.total_students} 人`])));
   }
 
   // 雷達：本次 vs 上次
@@ -485,7 +506,12 @@ function renderGrowth(d) {
   const prev = sittings.at(-2);
   document.getElementById('radarCaption').textContent = latest ? `${slotShortLabel(latest)} vs ${prev ? slotShortLabel(prev) : '—'}` : '';
   if (!latest) showEmptyChart(radarCard, '還沒有段考紀錄', '有紀錄後會用雷達圖比較各科。');
-  else state.charts.push(radarChart(document.getElementById('radarChart'), latest, prev, accent));
+  else {
+    state.charts.push(radarChart(document.getElementById('radarChart'), latest, prev, accent));
+    radarCard.append(chartDataTable('本次與上次各科分數', ['科目', '本次', '上次'],
+      state.subjects.map((subj) => [subj.display_name, latest.scores[subj.code] == null ? '未登錄' : String(latest.scores[subj.code]),
+        !prev ? '—' : prev.scores[subj.code] == null ? '未登錄' : String(prev.scores[subj.code])])));
+  }
 
   // 學期比較
   const tc = document.getElementById('termCard');
@@ -518,8 +544,8 @@ function renderMap(d) {
   // 視覺上是格狀；每格自帶完整說明，表頭對報讀器隱藏（避免錯誤的 grid ARIA）
   const grid = el('div', { class: 'yearmap' });
   const hiddenHead = (cls, text) => el('span', { class: cls, text, 'aria-hidden': 'true' });
-  grid.append(el('span', { 'aria-hidden': 'true' }), hiddenHead('yearmap__term', '上學期'), hiddenHead('yearmap__term', '下學期'));
-  grid.append(el('span', { 'aria-hidden': 'true' }));
+  grid.append(el('span', { class: 'yearmap__corner', 'aria-hidden': 'true' }), hiddenHead('yearmap__term', '上學期'), hiddenHead('yearmap__term', '下學期'));
+  grid.append(el('span', { class: 'yearmap__corner', 'aria-hidden': 'true' }));
   for (let i = 0; i < 6; i++) grid.append(hiddenHead('yearmap__colhead', `第${['一', '二', '三'][i % 3]}次`));
 
   for (const g of [1, 2, 3]) {
