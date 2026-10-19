@@ -73,9 +73,7 @@ v2.0 改版時（2026-10-19）資料庫是空的，所以直接刪除重建，�
 JHS/                    # 省略規劃書、交接檔等協作文件
 ├── index.html          # 公開成長儀表板
 ├── entry.html          # 家長輸入頁（需登入）
-├── css/
-│   ├── style.css         # v2.0 設計 token + 版面（前台）
-│   └── entry-legacy.css  # 家長端舊樣式，Phase 3 改版後移除
+├── css/style.css         # v2.0 設計 token + 版面（前台與家長端共用）
 ├── js/
 │   ├── config.js        # Supabase 連線設定
 │   ├── supabaseClient.js
@@ -83,6 +81,7 @@ JHS/                    # 省略規劃書、交接檔等協作文件
 │   ├── milestones.js     # 里程碑、學年地圖分級、排名變化等純函式
 │   ├── dashboard.js      # index.html 用
 │   ├── auth.js           # entry.html 共用登入邏輯
+│   ├── entryLogic.js     # 家長端純函式：表單驗證、頭像檔案驗證與裁切
 │   └── entry.js          # entry.html 用
 ├── assets/avatars/       # 內建手繪頭像（cat, bunny, bear, penguin）
 ├── tests/                # node --test 單元測試（stats / milestones）
@@ -94,7 +93,7 @@ JHS/                    # 省略規劃書、交接檔等協作文件
 
 ## 測試
 
-計算邏輯（`js/stats.js`、`js/milestones.js`）是純函式，用 Node 內建測試執行，不需安裝任何套件：
+計算與驗證邏輯（`js/stats.js`、`js/milestones.js`、`js/entryLogic.js`）是純函式，用 Node 內建測試執行，不需安裝任何套件：
 
 ```
 npm test

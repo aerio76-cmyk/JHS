@@ -28,6 +28,10 @@
 }
 
 *, *::before, *::after { box-sizing: border-box; }
+/* hidden 屬性一律生效（避免元件自己的 display 把它蓋掉） */
+[hidden] { display: none !important; }
+/* 換頁時程式把焦點移到標題（tabindex=-1），不需要顯示外框 */
+[tabindex='-1']:focus:not(:focus-visible) { outline: none; }
 html { scroll-padding-top: 130px; } /* sticky 頁首不擋住聚焦元素 */
 
 body {
@@ -94,7 +98,6 @@ button, input, select { font: inherit; color: inherit; }
 
 /* ---------- 版面 ---------- */
 main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 48px; }
-.view[hidden] { display: none; }
 .cols { display: grid; gap: 16px; }
 .stack { display: grid; gap: 16px; align-content: start; }
 @media (min-width: 900px) {
@@ -336,7 +339,8 @@ fieldset.field { border: 0; margin: 0; padding: 0; min-width: 0; }
 .msg { margin: 0; font-size: .875rem; padding: 8px 12px; border-radius: 10px; }
 .msg--error { background: #FBEDEA; color: #8A2C1C; border: 1.5px solid #E7B6AA; }
 .msg--ok { background: #EAF5EF; color: #1E5E41; border: 1.5px solid #B4DAC5; }
-.msg:empty { display: none; }
+/* 空的訊息區留在無障礙樹裡（live region 要常駐才會被報讀），只是視覺上隱藏 */
+.msg:empty { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; border: 0; overflow: hidden; clip: rect(0 0 0 0); }
 .preview-chip { display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px 4px 4px; border-radius: 999px; background: var(--accent-soft); border: 1.5px solid var(--accent); font-weight: 700; }
 .preview-chip img { width: 32px; height: 32px; border-radius: 50%; background: var(--surface); }
 
@@ -363,3 +367,20 @@ fieldset.field { border: 0; margin: 0; padding: 0; min-width: 0; }
   display: inline-flex; align-items: center; min-height: 44px; padding: 0 12px;
   color: var(--ink-soft); font-size: .875rem;
 }
+
+/* ---------- 家長端表單 ---------- */
+.section-title { font-family: var(--font-hand); font-weight: 400; font-size: 1.5rem; margin: 0; }
+.login-card { max-width: 480px; margin: 24px auto; display: grid; gap: 12px; }
+.login-card h1 { font-family: var(--font-hand); font-weight: 400; font-size: 1.5rem; margin: 0; }
+.login-card p { margin: 0; }
+.form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 12px; }
+.field--narrow { max-width: 240px; }
+fieldset.plain { border: 0; margin: 0; padding: 0; min-width: 0; }
+fieldset.plain:disabled { opacity: .6; }
+.field legend small { font-weight: 400; }
+select.input { appearance: auto; }
+.input[aria-invalid='true'] { border-color: #8A2C1C; border-width: 2px; }
+.msg-area { display: grid; gap: 6px; }
+.admin-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.admin-list__item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+.admin-list__email { flex: 1 1 200px; overflow-wrap: anywhere; }
