@@ -1,0 +1,46 @@
+# Supabase 免費方案的專案連續 7 天沒有活動會被自動暫停。
+# 這個排程每 3 天對資料庫做一次唯讀查詢（讀 subjects 一筆），維持活動紀錄。
+# 連線資訊直接讀 js/config.js（anon key 本來就是公開的，安全性由 RLS 把關），不需要另外設定 secrets。
+# 查詢失敗時 workflow 會標成失敗，GitHub 會寄信通知 repo 擁有者。
+#
+# 注意：排程只在預設分支（main）上執行；公開 repo 連續 60 天沒有任何 commit 時，
+# GitHub 會自動停用排程（停用前會寄信），屆時到 Actions 頁面按 Enable 即可。
+
+name: Supabase keep-alive
+
+on:
+  schedule:
+    - cron: '17 3 */3 * *' # 每 3 天 03:17 UTC（台灣 11:17）
+  workflow_dispatch: # 可在 Actions 頁面手動觸發測試
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          sparse-checkout: js/config.js
+          sparse-checkout-cone-mode: false
+
+      - name: Query Supabase
+        run: |
+          url=$(grep -oE "SUPABASE_URL: *'[^']+'" js/config.js | sed -E "s/.*'([^']+)'/\1/")
+          key=$(grep -oE "SUPABASE_ANON_KEY: *'[^']+'" js/config.js | sed -E "s/.*'([^']+)'/\1/")
+          if [ -z "$url" ] || [ -z "$key" ]; then
+            echo "::error::無法從 js/config.js 讀到 SUPABASE_URL / SUPABASE_ANON_KEY"
+            exit 1
+          fi
+          echo "::add-mask::$key"
+          status=$(curl -sS -o response.json -w '%{http_code}' --retry 3 --retry-delay 10 \
+            -H "apikey: $key" -H "Authorization: Bearer $key" \
+            "$url/rest/v1/subjects?select=code&limit=1")
+          echo "HTTP $status"
+          cat response.json; echo
+          if [ "$status" != "200" ]; then
+            echo "::error::Supabase 回應 $status，專案可能已被暫停，請到 Supabase Dashboard 恢復"
+            exit 1
+          fi
