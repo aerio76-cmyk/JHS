@@ -124,6 +124,7 @@ JHS/                    # 省略規劃書、交接檔等協作文件
 │   ├── backupLogic.js    # 資料備份純函式：分頁讀取、CSV、JSON、還原 SQL
 │   └── entry.js          # entry.html 用
 ├── assets/avatars/       # 內建手繪頭像（cat, bunny, bear, penguin）
+├── assets/icon.svg       # 網站圖示（另有 icon-32.png、apple-touch-icon.png）
 ├── tests/                # node --test 單元測試
 ├── handoff/archive/      # 已封存的協作交接檔
 ├── docs/archive/         # 舊版規劃書（v1.0、v2.0、v2.1）
@@ -149,6 +150,14 @@ npm test
 ```
 
 （等同 `node --test "tests/**/*.test.js"`；Node 24 不接受只給資料夾 `tests/`。）
+
+## 搜尋引擎
+
+`index.html`、`entry.html` 都有 `<meta name="robots" content="noindex, nofollow">`，請搜尋引擎不要收錄。
+
+- 這**不是存取控制**：知道網址的人仍然看得到前台，資料的保護靠 RLS。
+- 已經被收錄的頁面要過一段時間才會從搜尋結果消失。
+- GitHub Pages 的專案站（`/JHS/`）無法放網域根目錄的 `robots.txt`，所以不另外建立。
 
 ## 權限模型
 
