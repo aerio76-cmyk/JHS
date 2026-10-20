@@ -2,7 +2,7 @@
 
 國中學業成長記錄網頁工具：段考成績紀錄 + 成長分析，一律「跟自己比」。
 純前端（無框架）+ GitHub Pages + Chart.js + Supabase（資料庫／Auth／Storage）。
-規格見 `國中學業成長記錄網頁工具_規劃書_v2.1.md`。
+規格見 `國中學業成長記錄網頁工具_規劃書_v2.2.md`（舊版規劃書在 `docs/archive/`）。
 
 ## 初次設定步驟
 
@@ -47,9 +47,13 @@ Supabase Dashboard → Authentication → Providers → Google，照官方引導
 OAuth Client ID/Secret。**Redirect URL** 記得設定成你的 GitHub Pages 網址（例如
 `https://aerio76-cmyk.github.io/JHS/entry.html`），不然登入後會跳轉失敗。
 
-目前 Authentication 設定**關閉了「Allow new users to sign up」**：家長的 Google 帳號必須**已經存在於
-Authentication → Users**，且 email 跟 `admins` 白名單一致，否則第一次登入會被拒絕。
-之後要加第二位家長時，先暫時開啟註冊讓對方登入一次（或在 Users 頁手動建立），再關回來。
+建議設定：**平時關閉「Allow new users to sign up」**，只讓既有帳號登入。這時家長的 Google 帳號必須
+已經存在於 Authentication → Users，且 email 跟 `admins` 白名單一致，否則第一次登入會被拒絕。
+
+新增家長時：
+1. 在家長端「白名單」加入對方 email。
+2. Google Cloud → OAuth「目標對象」→ 測試使用者加入對方（測試狀態最多 100 位）。
+3. Supabase 暫時開啟註冊 → 請對方用 Google 登入一次 → 確認 Users 出現對方 → 立刻關閉。
 
 ### 5. 開通 GitHub Pages
 
@@ -61,6 +65,29 @@ Repo Settings → Pages → Source 選 `main` 分支 / root，存檔後等幾分
 v2.0 改版時（2026-10-19）資料庫是空的，所以直接刪除重建，沒有走遷移。之後若要重建：
 把 `schema.sql`、`seed_data.sql` 和上面第 2 步的白名單／學生 insert 依序在 SQL Editor 執行即可
 （本機的 `supabase/*.local.sql` 可放含 email 的合併版，已被 `.gitignore` 排除）。
+
+## 備份與還原
+
+Supabase 免費方案沒有自動備份，請用家長端「資料備份」自己下載：
+
+- **什麼時候**：每次輸入完一批成績後下載一次，至少每學期一次。
+- **下載什麼**：「完整備份（JSON）」用來還原；「成績（CSV）」「校排名（CSV）」可以用 Excel 直接開啟（已含 BOM，中文不會亂碼）。
+- **存在哪裡**：除了這台電腦，再存一份到雲端硬碟或隨身碟。檔案內有學生英文名與成績，請當成私人資料保管。
+- **不在備份裡的**：頭像照片與頭像網址（還原到原本的資料庫時頭像維持原狀；還原到新資料庫時顯示預設頭像）、白名單、勵志小語（在 `seed_data.sql`）。
+- 下載時請不要同時在其他裝置輸入成績，避免備份抓到一半的資料。
+
+還原步驟：
+
+1. 家長端「資料備份」→「選擇備份檔並產生 SQL」，選 JSON 備份檔，下載產生的 `.sql`。網站不會直接改資料庫。
+2. 到 Supabase Dashboard → SQL Editor 貼上整份內容後執行。整份是一個 transaction，失敗會全部還原。
+3. 最後的查詢會列出學生、成績、排名筆數，應該跟備份一致。
+
+還原會**新增或覆蓋**同一位學生（以學生 id 比對）、同一次段考的資料，**不會刪除**備份裡沒有的資料。
+如果資料庫裡已有**同名但 id 不同**的學生（例如重建資料庫時重新建立了學生），還原會自動中止並說明原因，
+請先刪除那位學生（他的成績會一起刪除）或改在空的資料庫還原。
+
+只用自己從家長端下載的備份檔，不要用別人傳來的檔案；網站產生 SQL 前會檢查檔案內容，不合格就拒絕。
+建議先在測試用的 Supabase 專案試跑，再用在正式資料庫。
 
 ## 安全強化 patch
 
@@ -94,9 +121,13 @@ JHS/                    # 省略規劃書、交接檔等協作文件
 │   ├── dashboard.js      # index.html 用
 │   ├── auth.js           # entry.html 共用登入邏輯
 │   ├── entryLogic.js     # 家長端純函式：表單驗證、頭像檔案驗證與裁切
+│   ├── backupLogic.js    # 資料備份純函式：分頁讀取、CSV、JSON、還原 SQL
 │   └── entry.js          # entry.html 用
 ├── assets/avatars/       # 內建手繪頭像（cat, bunny, bear, penguin）
-├── tests/                # node --test 單元測試（stats / milestones）
+├── assets/icon.svg       # 網站圖示（另有 icon-32.png、apple-touch-icon.png）
+├── tests/                # node --test 單元測試
+├── handoff/archive/      # 已封存的協作交接檔
+├── docs/archive/         # 舊版規劃書（v1.0、v2.0、v2.1）
 └── supabase/
     ├── schema.sql        # 全新安裝用
     └── seed_data.sql
@@ -112,13 +143,21 @@ git checkout phase0-mockups -- mockups/   # 取回到工作目錄（看完可刪
 
 ## 測試
 
-計算與驗證邏輯（`js/stats.js`、`js/milestones.js`、`js/entryLogic.js`）是純函式，用 Node 內建測試執行，不需安裝任何套件：
+計算與驗證邏輯（`js/stats.js`、`js/milestones.js`、`js/entryLogic.js`、`js/backupLogic.js`）是純函式，用 Node 內建測試執行，不需安裝任何套件：
 
 ```
 npm test
 ```
 
 （等同 `node --test "tests/**/*.test.js"`；Node 24 不接受只給資料夾 `tests/`。）
+
+## 搜尋引擎
+
+`index.html`、`entry.html` 都有 `<meta name="robots" content="noindex, nofollow">`，請搜尋引擎不要收錄。
+
+- 這**不是存取控制**：知道網址的人仍然看得到前台，資料的保護靠 RLS。
+- 已經被收錄的頁面要過一段時間才會從搜尋結果消失。
+- GitHub Pages 的專案站（`/JHS/`）無法放網域根目錄的 `robots.txt`，所以不另外建立。
 
 ## 權限模型
 

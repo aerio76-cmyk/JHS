@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="成長記錄本">
+  <g stroke="#3A3440" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M17 7 C27 6.5 37 7.5 47 7 C51 7 54 9.5 54 13.5 C54.5 26 53.5 39 54 51 C54 55 51 57.5 47 57.5 C37 58 27 57 17 57.5 C13.5 57.5 11 55 11 51.5 C10.5 39 11.5 26 11 13 C11 9.5 13.5 7 17 7 Z" fill="#F28B6D"/>
+    <path d="M8 15 L15 15 M8 25 L15 25 M8 35 L15 35 M8 45 L15 45" fill="none" stroke-width="3"/>
+    <path d="M22 20 C29 19.5 36 20.5 44 20 L44 35 C36 35.5 29 34.5 22 35 Z" fill="#FFF8F0"/>
+    <path d="M26 31 C29 30.5 30 27 33 27.5 C36 28 37 25 40 24" fill="none" stroke="#3FA796" stroke-width="3"/>
+    <path d="M44 4 C44.5 9 43.5 14 44 18 L47 15 L50 18 C49.5 13 50.5 9 50 4 Z" fill="#F7C74F" stroke-width="2.6"/>
+    <path d="M24 44 C30 43.5 36 44.5 42 44" fill="none" stroke="#FFFFFF" stroke-width="2.6"/>
+  </g>
+</svg>
