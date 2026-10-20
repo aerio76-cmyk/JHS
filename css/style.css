@@ -121,8 +121,9 @@ main { max-width: 1120px; margin: 0 auto; padding: 20px 16px 48px; }
   display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center;
   background: var(--accent-soft); border-color: transparent;
 }
+/* 頭像底色跟著主題色（直接用 var(--accent)，前台取學生色、家長端每張卡片取自己的色） */
 .avatar-ring {
-  width: 104px; height: 104px; border-radius: 50%; background: var(--surface);
+  width: 104px; height: 104px; border-radius: 50%; background: color-mix(in srgb, var(--accent) 30%, #fff);
   border: 2.5px solid var(--ink); padding: 4px; flex: none;
   border-radius: 52% 48% 50% 50% / 48% 52% 48% 52%;
 }
