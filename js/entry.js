@@ -3,7 +3,8 @@
 // 安全：資料庫字串（學生名、科目名、email、錯誤訊息）一律用 textContent 輸出，不用 innerHTML。
 // 權限真正的把關在 RLS 與 Storage 政策；前端隱藏按鈕只是介面。
 
-const ADMIN_VIEWS = { scores: '段考成績', ranks: '校排名', students: '學生與頭像', admins: '白名單' };
+const ADMIN_VIEWS = { scores: '段考成績', ranks: '校排名', students: '學生與頭像', backup: '資料備份', admins: '白名單' };
+const STORAGE_LAST_BACKUP = 'jhs.lastBackupAt';
 const FALLBACK_ACCENT = '#F28B6D';
 
 const entry = {
@@ -524,6 +525,98 @@ function renderStudents() {
   wrap.replaceChildren(...entry.students.map(studentCard));
 }
 
+/* ================= 資料備份 ================= */
+// 「上次在這台裝置下載備份」只是提示：存在 localStorage，讀寫失敗（無痕、被封鎖）就不顯示
+function showLastBackup() {
+  let text = '';
+  try {
+    const t = Number(localStorage.getItem(STORAGE_LAST_BACKUP));
+    if (t > 0) text = `上次在這台裝置下載完整備份：${new Date(t).toLocaleString('zh-TW', { hour12: false })}`;
+  } catch {
+    /* 讀不到就不顯示 */
+  }
+  document.getElementById('lastBackup').textContent = text;
+}
+
+function rememberBackup(time) {
+  try {
+    localStorage.setItem(STORAGE_LAST_BACKUP, String(time));
+  } catch {
+    /* 存不了只是少了提示 */
+  }
+  showLastBackup();
+}
+
+// 以 Blob 產生檔案並觸發下載；稍後釋放 object URL
+function downloadText(text, filename, type) {
+  const url = URL.createObjectURL(new Blob([text], { type }));
+  const a = h('a', { href: url, download: filename });
+  document.body.append(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 30000); // 給較慢的瀏覽器足夠時間開始下載
+}
+
+// 三張表一律分頁讀完（不依賴單次 1000 列上限）
+async function readBackupTables() {
+  const readTable = (table) => fetchAllRows((from, to) => {
+    let q = sbClient.from(table).select(BACKUP_COLUMNS[table].join(', '));
+    for (const col of BACKUP_ORDER[table]) q = q.order(col);
+    return q.range(from, to);
+  });
+  const [students, exam_scores, exam_rankings] = await Promise.all([readTable('students'), readTable('exam_scores'), readTable('exam_rankings')]);
+  return { students, exam_scores, exam_rankings };
+}
+
+async function handleExport(kind, msg) {
+  const buttons = document.querySelectorAll('#backupButtons button');
+  buttons.forEach((b) => (b.disabled = true)); // 匯出期間鎖住，避免重複點擊
+  try {
+    const tables = await readBackupTables();
+    const now = Date.now();
+    let file;
+    if (kind === 'json') {
+      file = { text: JSON.stringify(buildBackup(tables, now), null, 2), name: backupFilename('backup', 'json', now), type: 'application/json' };
+    } else if (kind === 'scores') {
+      file = { text: scoresCsv(tables.exam_scores, tables.students, entry.subjects), name: backupFilename('scores', 'csv', now), type: 'text/csv;charset=utf-8' };
+    } else {
+      file = { text: rankingsCsv(tables.exam_rankings, tables.students), name: backupFilename('rankings', 'csv', now), type: 'text/csv;charset=utf-8' };
+    }
+    downloadText(file.text, file.name, file.type);
+    if (kind === 'json') rememberBackup(now); // 只有完整備份能用來還原，CSV 不算
+    msg.ok(`已下載 ${file.name}（學生 ${tables.students.length}、成績 ${tables.exam_scores.length}、排名 ${tables.exam_rankings.length} 筆）。`);
+  } catch (error) {
+    console.error(error);
+    msg.error(describeError(error, '下載備份'));
+  } finally {
+    buttons.forEach((b) => (b.disabled = false));
+  }
+}
+
+async function handleRestoreFile(file, msg) {
+  if (!file) return;
+  if (file.size > 20 * 1024 * 1024) return msg.error(`「${file.name}」太大了，不像是成長記錄本的備份檔。`);
+  const button = document.getElementById('restorePickBtn');
+  setBusy(button, true, '產生中…');
+  try {
+    const backup = parseBackup(await file.text());
+    const sql = buildRestoreSql(backup);
+    const name = backupFilename('restore', 'sql', Date.now());
+    downloadText(sql, name, 'application/sql');
+    const t = backup.tables;
+    msg.ok(`已產生 ${name}（學生 ${t.students.length}、成績 ${t.exam_scores.length}、排名 ${t.exam_rankings.length} 筆）。請到 Supabase SQL Editor 執行。`);
+  } catch (error) {
+    // 我們自己丟出的 BackupError 是給家長看的中文；其他非預期錯誤只顯示通用訊息，細節留在 console
+    if (error instanceof BackupError) msg.error(error.message);
+    else {
+      console.error(error);
+      msg.error('這個檔案無法產生還原 SQL，請確認選的是成長記錄本下載的「完整備份（JSON）」。');
+    }
+  } finally {
+    setBusy(button, false);
+  }
+}
+
 /* ================= 白名單（super_admin） ================= */
 async function renderAdminList(msg) {
   const list = document.getElementById('adminList');
@@ -586,7 +679,7 @@ async function handleAddAdmin(e, msg) {
 
 /* ================= 路由與初始化 ================= */
 function renderRoute() {
-  const views = entry.status?.role === 'super_admin' ? ADMIN_VIEWS : { scores: 1, ranks: 1, students: 1 };
+  const views = entry.status?.role === 'super_admin' ? ADMIN_VIEWS : { scores: 1, ranks: 1, students: 1, backup: 1 };
   const { name } = parseRoute(location.hash, views);
   const current = name === 'home' ? 'scores' : name;
   document.querySelectorAll('#entryPanel .view').forEach((v) => (v.hidden = v.dataset.view !== current));
@@ -659,6 +752,18 @@ async function init() {
   document.getElementById('scoreForm').addEventListener('submit', (e) => handleScoreSubmit(e, scoreMsg));
   document.getElementById('rankForm').addEventListener('submit', (e) => handleRankSubmit(e, rankMsg));
   renderStudents();
+
+  const backupMsg = messageArea(document.querySelector('[data-msg="backup"]'), 'backup-msg');
+  const restoreMsg = messageArea(document.querySelector('[data-msg="restore"]'), 'restore-msg');
+  document.querySelectorAll('#backupButtons button').forEach((b) => b.addEventListener('click', () => handleExport(b.dataset.export, backupMsg)));
+  const restoreFile = document.getElementById('restoreFile');
+  document.getElementById('restorePickBtn').addEventListener('click', () => restoreFile.click());
+  restoreFile.addEventListener('change', () => {
+    const f = restoreFile.files[0];
+    restoreFile.value = '';
+    handleRestoreFile(f, restoreMsg);
+  });
+  showLastBackup();
 
   if (status.role === 'super_admin') {
     document.querySelector('.admin-nav a[data-route="admins"]').hidden = false;

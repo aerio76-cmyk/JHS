@@ -47,6 +47,7 @@
         <a href="#/scores" data-route="scores">段考成績</a>
         <a href="#/ranks" data-route="ranks">校排名</a>
         <a href="#/students" data-route="students">學生與頭像</a>
+        <a href="#/backup" data-route="backup">資料備份</a>
         <a href="#/admins" data-route="admins" hidden>白名單</a>
       </nav>
 
@@ -108,6 +109,39 @@
           <p class="hint">前台只會顯示英文名、頭像與成績；請不要填入真實姓名、學校或班級。</p>
         </section>
 
+        <!-- 資料備份 -->
+        <section class="view stack" data-view="backup" aria-labelledby="backupTitle" hidden>
+          <h1 class="section-title" id="backupTitle">資料備份</h1>
+          <div class="card stack">
+            <h2>下載備份</h2>
+            <p>把學生、段考成績與校排名下載到這台電腦。建議每次輸入完一批成績後下載一次，至少每學期一次；檔案請存到雲端硬碟或隨身碟等第二個地方。</p>
+            <p class="hint" id="lastBackup"></p>
+            <div class="actions" id="backupButtons">
+              <button class="btn btn--primary" type="button" data-export="json">完整備份（JSON）</button>
+              <button class="btn" type="button" data-export="scores">成績（CSV）</button>
+              <button class="btn" type="button" data-export="rankings">校排名（CSV）</button>
+            </div>
+            <p class="hint">「完整備份」可以用來還原；CSV 可以直接用 Excel 開啟查看。頭像照片不在備份裡：還原到原本的資料庫時頭像維持原狀，還原到新的資料庫時會顯示預設頭像。</p>
+            <p class="hint">檔案含學生英文名與成績，請存在私人的位置，不要上傳到公開的地方。下載時請不要同時在其他裝置輸入成績。</p>
+            <div class="msg-area" data-msg="backup"></div>
+          </div>
+          <div class="card stack">
+            <h2>從備份產生還原 SQL</h2>
+            <p>選一個「完整備份（JSON）」檔，網站會產生一份還原用的 SQL 檔，<strong>不會</strong>直接改動資料庫。</p>
+            <ol class="steps">
+              <li>選擇備份檔，下載產生的 <code>.sql</code> 檔。</li>
+              <li>到 Supabase Dashboard → SQL Editor，貼上整份內容後按 Run。</li>
+              <li>最後一行會列出學生、成績、排名的筆數，應該跟備份一致。</li>
+            </ol>
+            <p class="hint">還原會新增或覆蓋同一位學生、同一次段考的資料，不會刪除備份裡沒有的資料。只用自己從這裡下載的備份檔，不要用別人傳來的檔案；建議先在測試用的 Supabase 專案試跑。</p>
+            <div class="actions">
+              <button class="btn" type="button" id="restorePickBtn">選擇備份檔並產生 SQL</button>
+              <input type="file" id="restoreFile" accept=".json,application/json" hidden />
+            </div>
+            <div class="msg-area" data-msg="restore"></div>
+          </div>
+        </section>
+
         <!-- 白名單（只有主管理帳號） -->
         <section class="view stack" data-view="admins" aria-labelledby="adminsTitle" hidden>
           <h1 class="section-title" id="adminsTitle">白名單</h1>
@@ -136,6 +170,7 @@
   <script src="js/stats.js" defer></script>
   <script src="js/milestones.js" defer></script>
   <script src="js/entryLogic.js" defer></script>
+  <script src="js/backupLogic.js" defer></script>
   <script src="js/entry.js" defer></script>
 </body>
 </html>

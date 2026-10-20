@@ -393,3 +393,8 @@ select.input { appearance: auto; }
 .admin-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
 .admin-list__item { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; padding: 8px 0; border-bottom: 1px solid var(--line); }
 .admin-list__email { flex: 1 1 200px; overflow-wrap: anywhere; }
+
+/* ---------- 資料備份 ---------- */
+[data-view='backup'] .steps { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; }
+[data-view='backup'] .card p { margin: 0; }
+[data-view='backup'] code { font-size: .9em; background: var(--paper); padding: 1px 5px; border-radius: 4px; }
