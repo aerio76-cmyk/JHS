@@ -1,6 +1,33 @@
 -- 國中學業成長記錄網頁工具 — Supabase Schema
 -- 只給「全新的 Supabase 專案」用：在 Dashboard -> SQL Editor 貼上整份執行一次即可。
 -- 不含任何真實姓名/Email，這些請依 README「初次設定」章節的說明另外手動執行。
+-- ⚠ 既有專案不要執行本檔；要調整既有資料庫，只執行 supabase/patches/ 內的檔案。
+
+-- 整份包在一個 transaction 裡：下面的保護一旦中止，後面的語句都不會生效
+--（不論 SQL Editor 是整份送出，還是一句一句執行）。
+begin; -- @tx-begin（重新產生本機 rebuild 檔時刪掉這行與檔尾的 @tx-end，保護區塊保留）
+
+-- 保護檢查與建表都看同一個 schema（下面的 DDL 沒寫 schema 名稱）
+set local search_path = public, extensions;
+
+-- ========== 0. 防重複執行：已經有 JHS 資料表或權限函式的資料庫一律中止，必須是檔案的第一個動作 ==========
+do $schema_guard$
+declare
+  existing text;
+begin
+  select string_agg(name, '、') into existing
+  from (
+    select t as name from unnest(array['students', 'subjects', 'exam_scores', 'exam_rankings', 'motivational_quotes', 'admins']) as t
+    where to_regclass('public.' || t) is not null
+    union all
+    -- 只剩權限函式（表被手動刪掉）時也中止，避免把安全強化過的函式換回舊版
+    select f from unnest(array['is_admin()', 'is_super_admin()']) as f
+    where to_regprocedure('public.' || f) is not null
+  ) x;
+  if existing is not null then
+    raise exception '中止：這個資料庫已經有 JHS 的資料表或函式（%）。schema.sql 只能用在全新專案；既有專案請改執行 supabase/patches/ 內的檔案。若確定要整個重建（會刪除所有成績），請看 README「資料庫重建」。', existing;
+  end if;
+end $schema_guard$;
 
 create extension if not exists pgcrypto;
 
@@ -165,3 +192,5 @@ create policy "admin update avatars" on storage.objects for update
   with check (bucket_id = 'avatars' and public.is_admin());
 create policy "admin delete avatars" on storage.objects for delete
   using (bucket_id = 'avatars' and public.is_admin());
+
+commit; -- @tx-end

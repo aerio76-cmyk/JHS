@@ -2,7 +2,7 @@
 
 國中學業成長記錄網頁工具：段考成績紀錄 + 成長分析，一律「跟自己比」。
 純前端（無框架）+ GitHub Pages + Chart.js + Supabase（資料庫／Auth／Storage）。
-規格見 `國中學業成長記錄網頁工具_規劃書_v2.2.md`（舊版規劃書在 `docs/archive/`）。
+規格見 `國中學業成長記錄網頁工具_規劃書_v2.3.md`（舊版規劃書在 `docs/archive/`）。
 
 ## 初次設定步驟
 
@@ -13,7 +13,7 @@
 1. `supabase/schema.sql`（建表 + RLS 政策 + 頭像用的 `avatars` Storage bucket）
 2. `supabase/seed_data.sql`（5 科科目清單 + 32 筆勵志小語）
 
-`schema.sql` 只給全新專案用；要重建既有資料庫，見下方「資料庫重建」。
+**`schema.sql` 只能用在全新專案**；既有專案只執行 `supabase/patches/` 內的檔案。`schema.sql` 開頭有保護：資料庫裡已經有 JHS 的資料表時會自動中止、什麼都不改。要重建既有資料庫，見下方「資料庫重建」。
 
 ### 2. 手動塞入第一筆白名單資料（不要寫進版控）
 
@@ -63,8 +63,13 @@ Repo Settings → Pages → Source 選 `main` 分支 / root，存檔後等幾分
 ## 資料庫重建
 
 v2.0 改版時（2026-10-19）資料庫是空的，所以直接刪除重建，沒有走遷移。之後若要重建：
-把 `schema.sql`、`seed_data.sql` 和上面第 2 步的白名單／學生 insert 依序在 SQL Editor 執行即可
-（本機的 `supabase/*.local.sql` 可放含 email 的合併版，已被 `.gitignore` 排除）。
+必須先清空舊的 JHS 資料表（`schema.sql` 偵測到既有資料表會中止），再依序執行 `schema.sql`、`seed_data.sql`、
+上面第 2 步的白名單／學生 insert，最後執行 `supabase/patches/` 內的檔案。
+清空與重建的合併版放在本機的 `supabase/*.local.sql`（含 email，已被 `.gitignore` 排除）。
+本機 rebuild 檔**不含** `supabase/patches/`，跑完 rebuild 後要另外執行 patches。
+**重建會刪除所有成績，執行前請先下載完整備份。**
+
+在 SQL Editor 執行任何檔案被中止後，如果接下來的查詢出現 `current transaction is aborted`，先單獨執行一次 `rollback;` 再繼續。
 
 ## 備份與還原
 
@@ -89,13 +94,16 @@ Supabase 免費方案沒有自動備份，請用家長端「資料備份」自�
 只用自己從家長端下載的備份檔，不要用別人傳來的檔案；網站產生 SQL 前會檢查檔案內容，不合格就拒絕。
 建議先在測試用的 Supabase 專案試跑，再用在正式資料庫。
 
+**試跑前請先確認目前開啟的是測試專案**：測試專案的名稱不要跟正式專案相同。後台左上角的 `main PRODUCTION`
+標籤是每個專案預設分支的名稱，每個專案都會顯示，**不能用來分辨正式或測試**；請看專案名稱。
+
 ## 安全強化 patch
 
 `supabase/patches/2026-10-19_security_hardening.sql`（2026-10-19 安全稽核後新增），在 `schema.sql` 之後執行：
 
 - 白名單判斷改用 **Google 登入身分的 email**（`auth.identities`），使用者自己改不了，不再信任可被修改的帳號 email。
 - `admins` 只能新增／刪除一般管理員；`students.name` 限英文名；`avatar_url` 限本專案 avatars bucket。
-- 檔內寫死本專案 ref（`cfalawxigobkpqjtcpzq`），換專案時要一併修改。
+- 檔內寫死本專案的 project ref（頭像網址檢查用），換專案時要一併修改。
 - **執行前提**：每個 super_admin 都要先用 Google 登入過一次；否則 patch 會自動中止（避免把自己鎖在門外）。
 - 新專案的順序：`schema.sql` → `seed_data.sql` → 用 Google 登入一次 → 手動 insert 白名單 → 這份 patch。
 
