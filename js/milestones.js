@@ -13,10 +13,9 @@ for (const grade of [1, 2, 3]) {
   }
 }
 
-const EXAM_NUM = ['', '一', '二', '三'];
-
+// 短名稱：國一上 (1)＝國一上學期第一次段考（歷史紀錄手機版、雷達圖標題與圖例）
 function slotShortLabel(s) {
-  return `${GRADE_LABEL[s.grade]}${s.semester === 1 ? '上' : '下'}・${EXAM_NUM[s.exam_type]}`;
+  return `${GRADE_LABEL[s.grade]}${s.semester === 1 ? '上' : '下'} (${s.exam_type})`;
 }
 
 function slotLongLabel(s) {
