@@ -583,3 +583,9 @@ test('平均新高：缺科段考的高平均不會壓掉之後齊全段考的�
   ]), [], SUBJECTS);
   assert.deepEqual(only(ms, 'avg-best').map(at), ['1-1-3']);
 });
+
+test('slotShortLabel：格式為「國一上 (1)」', () => {
+  const { slotShortLabel } = require('../js/milestones.js');
+  assert.equal(slotShortLabel({ grade: 1, semester: 1, exam_type: 1 }), '國一上 (1)');
+  assert.equal(slotShortLabel({ grade: 2, semester: 2, exam_type: 3 }), '國二下 (3)');
+});
