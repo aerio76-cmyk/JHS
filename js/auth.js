@@ -5,11 +5,16 @@ async function getSession() {
   return data.session;
 }
 
+// 回傳 Promise<{ error }>；成功時瀏覽器會整頁跳轉到 Google
 function loginWithGoogle() {
-  sbClient.auth.signInWithOAuth({
+  return sbClient.auth.signInWithOAuth({
     provider: 'google',
-    // 只帶 origin + 路徑（不帶 query／hash），必須跟 Supabase Redirect URLs 的精確網址一致
-    options: { redirectTo: window.location.origin + window.location.pathname },
+    options: {
+      // 只帶 origin + 路徑（不帶 query／hash），必須跟 Supabase Redirect URLs 的精確網址一致
+      redirectTo: window.location.origin + window.location.pathname,
+      // 每次都讓使用者選帳號：登入失敗時才換得了帳號，不會被同一個帳號卡住
+      queryParams: { prompt: 'select_account' },
+    },
   });
 }
 

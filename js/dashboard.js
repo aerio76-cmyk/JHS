@@ -691,7 +691,10 @@ function renderHistory(d) {
   const makeBody = (list) => {
     const tb = el('tbody');
     for (const s of list) {
-      const tr = el('tr', {}, el('td', {}, el('a', { href: `#/exam/${sittingKey(s)}`, text: slotLongLabel(s) })));
+      // 桌面顯示完整名稱、手機顯示短名稱（CSS 切換）；報讀器一律念完整名稱
+      const link = el('a', { href: `#/exam/${sittingKey(s)}`, 'aria-label': slotLongLabel(s) },
+        el('span', { class: 'label-long', text: slotLongLabel(s) }), el('span', { class: 'label-short', text: slotShortLabel(s) }));
+      const tr = el('tr', {}, el('td', {}, link));
       for (const subj of state.subjects) tr.append(el('td', { class: 'num', text: s.scores[subj.code] == null ? '—' : String(s.scores[subj.code]) }));
       tr.append(el('td', { class: 'num', text: formatScore(s.average) }));
       tb.append(tr);
@@ -703,7 +706,7 @@ function renderHistory(d) {
   head.append(el('th', { text: '平均' }));
   const older = makeBody(rows.slice(3));
   older.hidden = true;
-  body.append(el('div', { class: 'table-scroll' }, el('table', { class: 'score-table' }, el('thead', {}, head), makeBody(rows.slice(0, 3)), older)));
+  body.append(el('div', { class: 'table-scroll' }, el('table', { class: 'score-table history-table' }, el('thead', {}, head), makeBody(rows.slice(0, 3)), older)));
   if (rows.length > 3) {
     const btn = el('button', { class: 'btn', type: 'button', style: 'margin-top:12px', text: `顯示更早的 ${rows.length - 3} 次` });
     btn.addEventListener('click', () => {
