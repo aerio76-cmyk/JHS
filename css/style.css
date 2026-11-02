@@ -288,6 +288,24 @@ a.cell:hover { transform: translateY(-2px) rotate(-1deg); }
 
 /* ---------- 歷史紀錄 ---------- */
 .table-scroll { overflow-x: auto; }
+/* 歷史紀錄：欄位不換行；手機用短段考名稱並收窄間距，讓「平均」不必橫向捲動就看得到 */
+.history-table th, .history-table td { white-space: nowrap; }
+.label-short { display: none; }
+@media (max-width: 639px) {
+  .label-long { display: none; }
+  .label-short { display: inline; }
+  .history-table th, .history-table td { padding: 10px 3px; font-size: .85rem; }
+  .history-table td.num { font-size: .95rem; }
+}
+/* 窄手機：五科都有小數時也要放得下，「平均」不被擠出畫面 */
+@media (max-width: 400px) {
+  .history-table th, .history-table td { padding: 10px 2px; font-size: .75rem; }
+  .history-table td.num { font-size: .85rem; }
+}
+@media (max-width: 340px) {
+  .history-table th, .history-table td { padding: 10px 1px; }
+  .history-table td.num { font-size: .8rem; }
+}
 
 /* ---------- 家長端 ---------- */
 .admin-layout { display: grid; gap: 16px; }

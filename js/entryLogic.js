@@ -138,10 +138,32 @@ function versionedAvatarUrl(publicUrl, version) {
   return `${base}?v=${encodeURIComponent(String(version))}${hash}`;
 }
 
+// OAuth 失敗時 Supabase 會把錯誤放在導回網址的 query 或 hash。只取代碼，
+// 畫面文字一律用下面的固定訊息，不顯示網址裡的 error_description（網址可被他人偽造）。
+function parseAuthRedirectError(search, hash) {
+  for (const raw of [search, hash]) {
+    const params = new URLSearchParams(String(raw ?? '').replace(/^[?#]/, ''));
+    const error = params.get('error');
+    const code = params.get('error_code');
+    if (error || code) return { error: error ?? '', code: code ?? '' };
+  }
+  return null;
+}
+
+function authErrorMessage(info) {
+  if (!info) return '';
+  if (/signup_disabled|user_banned/.test(info.code)) {
+    return '這個 Google 帳號目前沒有使用權限，所以無法登入。需要權限請聯絡主管理帳號，也可以改用其他 Google 帳號。';
+  }
+  if (info.error === 'access_denied') return 'Google 登入沒有完成。可以再試一次，或改用其他 Google 帳號。';
+  return '登入沒有成功，請再試一次；如果一直失敗，請聯絡主管理帳號。';
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
     THEME_SWATCHES, AVATAR_PRESET_OPTIONS, AVATAR_ALLOWED_TYPES, AVATAR_MAX_SOURCE_BYTES, AVATAR_BUCKET_MAX_BYTES, AVATAR_OUTPUT_SIZE,
     isAllowedThemeColor, isAllowedAvatarPreset, validateStudentName, parseScoreInput, buildScoreChanges,
     validateRanking, validateEmail, validateAvatarFile, squareCropRect, avatarObjectPath, avatarObjectPaths, versionedAvatarUrl,
+    parseAuthRedirectError, authErrorMessage,
   };
 }

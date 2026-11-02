@@ -705,7 +705,26 @@ const SUPABASE_ORIGIN = (() => {
 
 async function init() {
   const loadMsg = document.getElementById('loadMsg');
-  document.getElementById('googleLoginBtn').addEventListener('click', loginWithGoogle);
+  const loginError = document.getElementById('loginError');
+  const loginBtn = document.getElementById('googleLoginBtn');
+  loginBtn.addEventListener('click', async () => {
+    loginError.textContent = '';
+    setBusy(loginBtn, true, '前往 Google…');
+    try {
+      const { error } = await loginWithGoogle();
+      if (error) throw error;
+    } catch (error) {
+      console.error(error);
+      loginError.textContent = '無法開始 Google 登入，請確認網路後再試一次。';
+      setBusy(loginBtn, false);
+    }
+  });
+
+  // 從 Google 按返回時，瀏覽器可能直接還原快取頁面，按鈕要解鎖才不會卡住
+  window.addEventListener('pageshow', (e) => { if (e.persisted) setBusy(loginBtn, false); });
+
+  // 上一次登入失敗時 Supabase 會帶錯誤導回來：顯示說明，並清掉網址上的參數（重新整理不會再出現）
+  const authError = parseAuthRedirectError(location.search, location.hash);
   document.getElementById('logoutBtn').addEventListener('click', logout);
   document.getElementById('logoutBtnNoAccess').addEventListener('click', logout);
 
@@ -721,6 +740,10 @@ async function init() {
   loadMsg.textContent = '';
   entry.status = status;
 
+  if (authError) {
+    history.replaceState(null, '', location.pathname);
+    if (!status) loginError.textContent = authErrorMessage(authError);
+  }
   if (!status) return showPanel('loginGate');
   document.getElementById('who').hidden = false;
   document.getElementById('loggedInEmail').textContent = status.email;

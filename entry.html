@@ -33,15 +33,17 @@
     <section class="card login-card" id="loginGate" aria-labelledby="loginTitle" hidden>
       <h1 id="loginTitle">家長登入</h1>
       <p>用已加入白名單的 Google 帳號登入，才能輸入成績與管理學生資料。</p>
+      <p class="msg msg--error" id="loginError" role="alert"></p>
       <button class="btn btn--primary" type="button" id="googleLoginBtn">用 Google 登入</button>
-      <p class="hint"><a href="index.html">← 回成長記錄本</a></p>
+      <a class="btn" href="index.html">← 回成長記錄本</a>
     </section>
 
     <!-- 已登入但不在白名單 -->
     <section class="card login-card" id="noAccessPanel" aria-labelledby="noAccessTitle" hidden>
       <h1 id="noAccessTitle">這個帳號沒有編輯權限</h1>
       <p>如果需要權限，請聯絡主管理帳號把你的 Email 加入白名單。</p>
-      <button class="btn" type="button" id="logoutBtnNoAccess">登出</button>
+      <button class="btn btn--primary" type="button" id="logoutBtnNoAccess">登出，改用其他帳號</button>
+      <a class="btn" href="index.html">← 回成長記錄本</a>
     </section>
 
     <!-- 管理介面 -->

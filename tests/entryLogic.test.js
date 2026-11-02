@@ -524,3 +524,28 @@ test('versionedAvatarUrl：URL 含 #fragment 時，?v= 插在 # 之前', () => {
   assert.equal(versionedAvatarUrl('https://h/a.jpg#x', 1), 'https://h/a.jpg?v=1#x');
   assert.equal(versionedAvatarUrl('https://h/a.jpg?old=1#x', 2), 'https://h/a.jpg?v=2#x');
 });
+
+// ---------- OAuth 導回錯誤（2026-11-02） ----------
+const { parseAuthRedirectError, authErrorMessage } = require('../js/entryLogic.js');
+
+test('parseAuthRedirectError：query 與 hash 都讀得到，沒有錯誤回 null', () => {
+  const q = '?error=access_denied&error_code=signup_disabled&error_description=Signups+not+allowed';
+  assert.deepEqual(parseAuthRedirectError(q, ''), { error: 'access_denied', code: 'signup_disabled' });
+  assert.deepEqual(parseAuthRedirectError('', q.replace('?', '#')), { error: 'access_denied', code: 'signup_disabled' });
+  assert.equal(parseAuthRedirectError('', ''), null);
+  assert.equal(parseAuthRedirectError('?code=abc', '#/scores'), null);
+  assert.equal(parseAuthRedirectError(undefined, undefined), null);
+});
+
+test('authErrorMessage：註冊關閉、取消授權、其他錯誤各有固定中文訊息，沒有錯誤回空字串', () => {
+  assert.match(authErrorMessage({ error: 'access_denied', code: 'signup_disabled' }), /沒有使用權限/);
+  assert.match(authErrorMessage({ error: 'access_denied', code: '' }), /沒有完成/);
+  assert.match(authErrorMessage({ error: 'server_error', code: 'x' }), /沒有成功/);
+  assert.equal(authErrorMessage(null), '');
+});
+
+test('authErrorMessage：不會把網址裡的文字顯示在畫面上', () => {
+  const evil = '<img src=x onerror=alert(1)>';
+  const info = parseAuthRedirectError(`?error=${encodeURIComponent(evil)}&error_description=${encodeURIComponent(evil)}`, '');
+  assert.ok(!authErrorMessage(info).includes('img'));
+});
