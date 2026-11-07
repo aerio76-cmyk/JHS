@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/svg+xml" href="../assets/icon.svg" />
+<title>學習資料管理（模擬圖）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="css/materials.css" />
+</head>
+<body>
+  <div class="mock-bar" role="note">
+    <strong>Phase 0 模擬圖・家長端・假資料</strong>
+    <span class="mock-bar__group">狀態：
+      <a href="#/folder/sci-phy">一般</a>
+      <a href="#/upload/sci-phy">批次上傳中</a>
+      <a href="#/menu/sci-phy">圖片選單</a>
+      <a href="#/learned/sci-bio">已學會篩選</a>
+      <a href="#/new/sci-phy">新增資料夾</a>
+      <a href="#/new/sci-phy-elec">深度已滿</a>
+      <a href="#/del-folder/sci-phy">刪除資料夾</a>
+      <a href="#/del-item/sci-phy">永久刪除圖片</a>
+      <a href="#/move/sci-phy">移動</a>
+      <a href="#/replace/sci-phy">換圖</a>
+      <a href="#/folder/science">固定分類</a>
+    </span>
+    <span class="mock-bar__group">
+      <a href="materials.html#/home">孩子端 →</a>
+      <a href="materials-icons.html">圖示 →</a>
+    </span>
+  </div>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <p class="brand">成長記錄本・家長管理</p>
+      <div class="who"><span>家長帳號</span><button class="btn" type="button">登出</button></div>
+    </div>
+  </header>
+
+  <main>
+    <div class="admin-layout">
+      <nav class="admin-nav" aria-label="管理項目">
+        <a href="#">段考成績</a>
+        <a href="#">校排名</a>
+        <a href="#">學生與頭像</a>
+        <a href="#" aria-current="page">學習資料</a>
+        <a href="#">資料備份</a>
+        <a href="#">白名單</a>
+      </nav>
+
+      <div class="stack">
+        <h1 class="section-title">學習資料</h1>
+        <div class="mat-admin">
+          <!-- 左：資料夾樹＋用量 -->
+          <div class="stack">
+            <section class="card" aria-labelledby="treeTitle">
+              <h2 id="treeTitle">資料夾</h2>
+              <ul class="tree" id="tree"></ul>
+            </section>
+            <section class="card usage" aria-labelledby="usageTitle">
+              <h2 id="usageTitle">用量</h2>
+              <p style="margin:0">目前 <strong id="usageCount"></strong> 張，約 15 MB／免費額度 1 GB</p>
+              <div class="meter" role="img" aria-label="已使用約 1.5%"><span style="width:1.5%"></span></div>
+              <p class="hint">學習資料<strong>不在「資料備份」裡</strong>，刪除後無法救回。</p>
+            </section>
+          </div>
+
+          <!-- 右：目前資料夾 -->
+          <div class="stack">
+            <section class="card stack" aria-labelledby="folderTitle">
+              <nav class="crumbs" aria-label="目前位置"><ol id="crumbs"></ol></nav>
+              <div class="folder-head"><img id="folderIcon" alt="" /><h2 class="section-title" id="folderTitle"></h2></div>
+              <p class="hint" id="folderNote"></p>
+              <div class="actions" id="folderActions">
+                <button class="btn" type="button" data-dlg="dlgNew">＋ 新增子資料夾</button>
+                <button class="btn" type="button" data-dlg="dlgRename">改名</button>
+                <button class="btn" type="button" data-dlg="dlgDelFolder">刪除資料夾</button>
+              </div>
+            </section>
+
+            <section class="card stack" aria-labelledby="imgsTitle">
+              <h2 id="imgsTitle">圖片 <small id="imgsCount"></small></h2>
+              <div class="toolbar">
+                <button class="btn btn--primary" type="button" id="uploadToggle" aria-expanded="false" aria-controls="uploadPanel">上傳圖片</button>
+                <div class="seg" role="group" aria-label="篩選">
+                  <button type="button" data-filter="all" aria-pressed="true">全部</button>
+                  <button type="button" data-filter="active" aria-pressed="false">學習中</button>
+                  <button type="button" data-filter="learned" aria-pressed="false">已學會</button>
+                </div>
+              </div>
+
+              <!-- 批次上傳 -->
+              <div class="stack" id="uploadPanel" hidden>
+                <div class="drop drop--over" id="drop">
+                  <p><strong>把圖片拖到這裡</strong>，或</p>
+                  <label class="btn" for="filePick">從裝置選擇（可多選）</label>
+                  <input class="visually-hidden" type="file" id="filePick" accept="image/jpeg,image/png,image/webp" multiple />
+                  <p class="hint">也可以直接貼上剪貼簿裡的圖片（Ctrl＋V）。支援 JPG、PNG、WebP，每張 10 MB 以內；會自動縮小、轉成 WebP 並移除拍攝資訊（含 GPS）。</p>
+                </div>
+                <p class="upload-summary" role="status" id="uploadSummary"></p>
+                <ul class="upload-list" id="uploadList"></ul>
+                <div class="actions"><button class="btn" type="button">重試失敗的 1 張</button><button class="btn" type="button" id="uploadDone">完成</button></div>
+              </div>
+
+              <ul class="thumb-grid" id="thumbs"></ul>
+              <div class="empty" id="thumbsEmpty" hidden><p>這個資料夾目前沒有符合篩選的圖片。</p></div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- 新增資料夾 -->
+  <dialog class="dlg" id="dlgNew" aria-labelledby="dlgNewTitle">
+    <form method="dialog">
+      <h2 id="dlgNewTitle">新增子資料夾</h2>
+      <p id="dlgNewWhere"></p>
+      <div class="field" id="dlgNewField">
+        <label for="newName">資料夾名稱</label>
+        <input class="input" id="newName" maxlength="20" value="力與運動" />
+        <p class="hint">最多 20 個字。</p>
+      </div>
+      <p class="msg msg--error" id="dlgNewFull"></p>
+      <div class="actions"><button class="btn" value="cancel">取消</button><button class="btn btn--primary" id="dlgNewOk" value="ok">新增</button></div>
+    </form>
+  </dialog>
+
+  <!-- 改名（資料夾或圖片標題共用） -->
+  <dialog class="dlg" id="dlgRename" aria-labelledby="dlgRenameTitle">
+    <form method="dialog">
+      <h2 id="dlgRenameTitle">改名</h2>
+      <div class="field"><label for="renameInput" id="renameLabel">名稱</label><input class="input" id="renameInput" maxlength="60" /></div>
+      <div class="actions"><button class="btn" value="cancel">取消</button><button class="btn btn--primary" value="ok">儲存</button></div>
+    </form>
+  </dialog>
+
+  <!-- 刪除資料夾 -->
+  <dialog class="dlg" id="dlgDelFolder" aria-labelledby="dlgDelFolderTitle">
+    <form method="dialog">
+      <h2 id="dlgDelFolderTitle">刪除資料夾「<span data-fname></span>」？</h2>
+      <p id="delFolderBody"></p>
+      <p class="note-box">學習資料不在資料備份裡，刪除後<strong>無法復原</strong>。</p>
+      <div class="actions"><button class="btn" value="cancel">取消</button><button class="btn btn--danger" value="ok" id="delFolderOk"></button></div>
+    </form>
+  </dialog>
+
+  <!-- 永久刪除圖片 -->
+  <dialog class="dlg" id="dlgDelItem" aria-labelledby="dlgDelItemTitle">
+    <form method="dialog">
+      <h2 id="dlgDelItemTitle">永久刪除這張圖片？</h2>
+      <p>「<span data-ititle></span>」會從資料夾和儲存空間一起刪除，<strong>無法復原</strong>。</p>
+      <p class="hint">只是暫時不想讓孩子看到的話，可以改用「標為已學會」，之後還能還原。</p>
+      <div class="actions"><button class="btn" value="cancel">取消</button><button class="btn btn--danger" value="ok">永久刪除</button></div>
+    </form>
+  </dialog>
+
+  <!-- 移動 -->
+  <dialog class="dlg" id="dlgMove" aria-labelledby="dlgMoveTitle">
+    <form method="dialog">
+      <h2 id="dlgMoveTitle">移動「<span data-ititle></span>」</h2>
+      <div class="field"><label for="moveTo">移到哪個資料夾</label><select class="input" id="moveTo"></select></div>
+      <div class="actions"><button class="btn" value="cancel">取消</button><button class="btn btn--primary" value="ok">移動</button></div>
+    </form>
+  </dialog>
+
+  <!-- 換圖 -->
+  <dialog class="dlg" id="dlgReplace" aria-labelledby="dlgReplaceTitle">
+    <form method="dialog">
+      <h2 id="dlgReplaceTitle">換一張圖</h2>
+      <p>「<span data-ititle></span>」的標題、資料夾和年級標籤都會保留，只換圖片檔。</p>
+      <div class="drop"><label class="btn" for="replacePick">選擇新圖片</label><input class="visually-hidden" type="file" id="replacePick" accept="image/jpeg,image/png,image/webp" /></div>
+      <div class="actions"><button class="btn" value="cancel">取消</button><button class="btn btn--primary" value="ok" disabled>換圖</button></div>
+    </form>
+  </dialog>
+
+<script src="js/materialsData.js"></script>
+<script src="js/materialsAdmin.js"></script>
+</body>
+</html>

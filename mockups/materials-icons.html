@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>學習資料庫圖示（模擬圖）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="css/materials.css" />
+</head>
+<body>
+  <div class="mock-bar" role="note">
+    <strong>Phase 0 模擬圖・學習資料庫圖示</strong>
+    <a href="materials.html">孩子端 →</a>
+    <a href="materials-admin.html">家長端 →</a>
+  </div>
+  <main class="stack">
+    <h1 class="section-title">六類圖示：兩種風格方向</h1>
+    <p class="hint">兩款都沿用網站圖示（珊瑚橘筆記本）的手繪筆觸：深色描邊 3 px、圓角收尾、略微不規則的線條。請選一款，Phase 1 之後只保留選定的那款。</p>
+    <div id="sets" class="stack"></div>
+  </main>
+<script>
+const KEYS = [['chinese', '國文'], ['english', '英文'], ['math', '數學'], ['science', '自然'], ['social', '社會'], ['other', '其他']];
+const STYLES = [
+  ['a', '風格 A：填色＋描邊', '和網站圖示同一種畫法，色塊大、在小尺寸與深色背景也認得出來。'],
+  ['b', '風格 B：線條＋錯位色塊', '只有線條，後面墊一塊錯開的顏色，像手繪筆記。較清爽，但深色背景時線條會看不清。'],
+];
+const sets = document.getElementById('sets');
+for (const [s, title, note] of STYLES) {
+  const card = document.createElement('section');
+  card.className = 'card icon-set';
+  card.innerHTML = `<h2>${title}</h2><p class="hint">${note}</p>`;
+  for (const bg of ['light', 'dark']) {
+    const row = document.createElement('div');
+    row.className = `icon-board icon-board--${bg}`;
+    for (const [k, label] of KEYS) {
+      const cell = document.createElement('figure');
+      cell.className = 'icon-cell';
+      cell.innerHTML = [96, 64, 32].map(px => `<img src="materials-icons/${s}-${k}.svg" width="${px}" height="${px}" alt="">`).join('') + `<figcaption>${label}</figcaption>`;
+      row.appendChild(cell);
+    }
+    card.appendChild(row);
+  }
+  sets.appendChild(card);
+}
+</script>
+</body>
+</html>

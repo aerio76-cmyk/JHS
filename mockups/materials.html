@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" type="image/svg+xml" href="../assets/icon.svg" />
+<title>學習資料庫（模擬圖）</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Huninn&family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="../css/style.css" />
+<link rel="stylesheet" href="css/materials.css" />
+</head>
+<body>
+  <div class="mock-bar" role="note">
+    <strong>Phase 0 模擬圖・孩子端・假資料</strong>
+    <span class="mock-bar__group">登入：
+      <a href="#/login">觀看登入</a>
+      <a href="#/login-error">密碼錯誤</a>
+      <a href="#/login-limit">嘗試太多次</a>
+    </span>
+    <span class="mock-bar__group">登入後：
+      <a href="#/home">首頁</a>
+      <a href="#/folder/science">自然</a>
+      <a href="#/folder/sci-phy-elec">第三層</a>
+      <a href="#/folder/chi-poem">空資料夾</a>
+      <a href="#/search/定律">搜尋</a>
+      <a href="#/view/sci-phy/1">放大檢視</a>
+    </span>
+    <span class="mock-bar__group">
+      <a href="materials-admin.html">家長端 →</a>
+      <a href="materials-icons.html">圖示 →</a>
+    </span>
+  </div>
+
+  <header class="site-header">
+    <div class="site-header__inner">
+      <p class="brand">學習資料庫</p>
+      <div class="who" id="who" hidden>
+        <span>觀看帳號</span>
+        <button class="btn" type="button" data-go="#/login">登出</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 觀看登入（email＋密碼；不開放註冊） -->
+    <section class="card login-card" data-view="login" aria-labelledby="loginTitle" hidden>
+      <h1 id="loginTitle">觀看登入</h1>
+      <p>請用家長給你的觀看帳號登入。這個帳號只能看資料，不能修改。</p>
+      <form id="loginForm" novalidate>
+        <p class="msg msg--error" id="loginError" role="alert"></p>
+        <div class="field">
+          <label for="loginEmail">帳號（Email）</label>
+          <input class="input" type="email" id="loginEmail" autocomplete="username" inputmode="email" spellcheck="false" />
+        </div>
+        <div class="field">
+          <label for="loginPw">密碼</label>
+          <div class="pw-wrap">
+            <input class="input" type="password" id="loginPw" autocomplete="current-password" />
+            <button class="btn" type="button" id="pwToggle" aria-pressed="false" aria-controls="loginPw">顯示</button>
+          </div>
+        </div>
+        <button class="btn btn--primary" type="submit">登入</button>
+      </form>
+      <p class="hint">忘記密碼請問家長；這裡沒有註冊與重設密碼的功能。登入後這台裝置會一直保持登入，直到按「登出」。</p>
+      <a class="btn" href="../index.html">← 回成長記錄本</a>
+    </section>
+
+    <!-- 首頁：六大分類＋搜尋＋最近新增 -->
+    <div class="stack" data-view="home" hidden>
+      <h1 class="visually-hidden">學習資料庫首頁</h1>
+      <form class="search" role="search" data-search>
+        <label class="visually-hidden" for="q1">搜尋圖片標題</label>
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="#615B68" stroke-width="2.4"/><path d="M15.5 15.5 L21 21" stroke="#615B68" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <input class="input" type="search" id="q1" placeholder="搜尋標題，例如：歐姆定律" enterkeyhint="search" />
+      </form>
+      <nav aria-label="科目分類"><div class="cat-grid" id="catGrid"></div></nav>
+      <section class="card" aria-labelledby="recentTitle">
+        <h2 id="recentTitle">最近新增</h2>
+        <ul class="recent-strip" id="recent"></ul>
+      </section>
+    </div>
+
+    <!-- 資料夾 -->
+    <div class="stack" data-view="folder" hidden>
+      <nav class="crumbs" aria-label="目前位置"><ol id="crumbs"></ol></nav>
+      <div class="folder-head"><img id="folderIcon" alt="" /><h1 class="section-title" id="folderTitle" tabindex="-1"></h1></div>
+      <ul class="subfolders" id="subfolders" aria-label="子資料夾"></ul>
+      <ul class="thumb-grid" id="thumbs"></ul>
+      <div class="empty" id="folderEmpty" hidden>
+        <p><strong>這個資料夾還沒有圖片</strong></p>
+        <p>家長放進來之後就會出現在這裡。</p>
+      </div>
+    </div>
+
+    <!-- 搜尋結果 -->
+    <div class="stack" data-view="search" hidden>
+      <form class="search" role="search" data-search>
+        <label class="visually-hidden" for="q2">搜尋圖片標題</label>
+        <svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5" fill="none" stroke="#615B68" stroke-width="2.4"/><path d="M15.5 15.5 L21 21" stroke="#615B68" stroke-width="2.4" stroke-linecap="round"/></svg>
+        <input class="input" type="search" id="q2" enterkeyhint="search" />
+      </form>
+      <h1 class="section-title" id="searchTitle" tabindex="-1"></h1>
+      <ul class="thumb-grid" id="searchThumbs"></ul>
+    </div>
+  </main>
+
+  <!-- 放大檢視 -->
+  <dialog class="lightbox" id="lightbox" aria-labelledby="lbTitle">
+    <div class="lightbox__bar">
+      <p class="lightbox__title" id="lbTitle"></p>
+      <span class="lightbox__count" id="lbCount"></span>
+      <button class="lb-btn" type="button" id="lbClose" aria-label="關閉">✕</button>
+    </div>
+    <div class="lightbox__stage" id="lbStage">
+      <button class="lb-btn lb-btn--prev" type="button" id="lbPrev" aria-label="上一張">‹</button>
+      <div class="lightbox__img" id="lbImg"></div>
+      <button class="lb-btn lb-btn--next" type="button" id="lbNext" aria-label="下一張">›</button>
+    </div>
+    <p class="lightbox__foot">左右滑動或用 ← → 鍵換張・Esc 關閉・雙指可放大</p>
+  </dialog>
+
+<script src="js/materialsData.js"></script>
+<script src="js/materialsView.js"></script>
+</body>
+</html>

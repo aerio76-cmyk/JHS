@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="數學">
+  <g stroke="#3A3440" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 56 C9 42 9.5 28 9 15 C22 28 36 42 50 56 C36 55.5 22 56.5 9 56 Z" fill="#F7C74F"/>
+    <path d="M17 48 L17 34 L31 48 Z" fill="#FFF8F0" stroke-width="2.6"/>
+    <path d="M9 23 L14 23 M9 31 L13 31 M9 39 L14 39" fill="none" stroke-width="2.4"/>
+    <path d="M44 8 L44 24 M36 16 L52 16" fill="none" stroke-width="3.4"/>
+    <path d="M46 33 L57 33 M46 40 L57 40" fill="none" stroke-width="3.4"/>
+  </g>
+</svg>
