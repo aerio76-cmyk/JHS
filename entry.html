@@ -52,6 +52,7 @@
         <a href="#/scores" data-route="scores">段考成績</a>
         <a href="#/ranks" data-route="ranks">校排名</a>
         <a href="#/students" data-route="students">學生與頭像</a>
+        <a href="#/materials" data-route="materials">學習資料</a>
         <a href="#/backup" data-route="backup">資料備份</a>
         <a href="#/admins" data-route="admins" hidden>白名單</a>
       </nav>
@@ -112,6 +113,140 @@
           <h1 class="section-title" id="studentsTitle">學生與頭像</h1>
           <div class="cols cols--even" id="studentCards"></div>
           <p class="hint">前台只會顯示英文名、頭像與成績；請不要填入真實姓名、學校或班級。</p>
+        </section>
+
+        <!-- 學習資料 -->
+        <section class="view stack" data-view="materials" aria-labelledby="materialsTitle" hidden>
+          <h1 class="section-title" id="materialsTitle">學習資料</h1>
+          <div class="msg-area" data-msg="materials"></div>
+          <div class="mat-admin">
+            <!-- 資料夾樹與用量 -->
+            <div class="stack">
+              <section class="card" aria-labelledby="matTreeTitle">
+                <h2 id="matTreeTitle">資料夾</h2>
+                <ul class="tree" id="matTree"></ul>
+              </section>
+              <section class="card stack" aria-labelledby="matUsageTitle">
+                <h2 id="matUsageTitle">用量</h2>
+                <p class="usage" id="matUsage"></p>
+                <div class="meter" id="matUsageMeter" role="img" aria-label="用量"><span id="matUsageBar"></span></div>
+                <p class="hint">學習資料<strong>不在「資料備份」裡</strong>，刪除後無法救回。</p>
+                <button class="btn" type="button" id="matOrphanBtn">檢查多餘的檔案</button>
+              </section>
+            </div>
+
+            <!-- 目前資料夾 -->
+            <div class="stack">
+              <section class="card stack" aria-labelledby="matFolderTitle">
+                <nav class="crumbs" aria-label="目前位置"><ol id="matCrumbs"></ol></nav>
+                <div class="folder-head"><span id="matFolderIcon"></span><h2 class="section-title" id="matFolderTitle"></h2></div>
+                <p class="hint" id="matFolderNote" hidden></p>
+                <div class="actions">
+                  <button class="btn" type="button" id="matNewFolderBtn">＋ 新增子資料夾</button>
+                  <button class="btn" type="button" id="matRenameFolderBtn">改名</button>
+                  <button class="btn" type="button" id="matDeleteFolderBtn">刪除資料夾</button>
+                </div>
+              </section>
+
+              <section class="card stack" aria-labelledby="matImgsTitle">
+                <h2 id="matImgsTitle">圖片 <small id="matImgCount"></small></h2>
+                <div class="toolbar">
+                  <button class="btn btn--primary" type="button" id="matUploadToggle" aria-expanded="false" aria-controls="matUploadPanel">上傳圖片</button>
+                  <div class="seg" role="group" aria-label="篩選">
+                    <button type="button" data-mat-filter="all" aria-pressed="true">全部</button>
+                    <button type="button" data-mat-filter="active" aria-pressed="false">學習中</button>
+                    <button type="button" data-mat-filter="learned" aria-pressed="false">已學會</button>
+                  </div>
+                </div>
+                <div class="stack" id="matUploadPanel" hidden>
+                  <div class="drop" id="matDrop">
+                    <p><strong>把圖片拖到這裡</strong>，或</p>
+                    <label class="btn" for="matFilePick">從裝置選擇（可多選）</label>
+                    <input class="visually-hidden" type="file" id="matFilePick" accept="image/jpeg,image/png,image/webp" multiple />
+                    <p class="hint">也可以直接貼上剪貼簿裡的圖片（Ctrl＋V）。支援 JPG、PNG、WebP，每張 10 MB 以內；會自動縮小、轉檔並移除拍攝資訊（含 GPS）。上傳到目前這個資料夾。</p>
+                  </div>
+                  <p class="upload-summary" role="status" id="matUploadSummary"></p>
+                  <ul class="upload-list" id="matUploadList"></ul>
+                  <div class="actions"><button class="btn" type="button" id="matRetryAll" hidden></button><button class="btn" type="button" id="matUploadDone">完成</button></div>
+                </div>
+                <ul class="thumb-grid" id="matThumbs"></ul>
+                <div class="empty" id="matThumbsEmpty" hidden><p>這個資料夾目前沒有符合篩選的圖片。</p></div>
+                <input class="visually-hidden" type="file" id="matReplaceFile" accept="image/jpeg,image/png,image/webp" tabindex="-1" aria-hidden="true" />
+              </section>
+            </div>
+          </div>
+
+          <!-- 新增／改名資料夾 -->
+          <dialog class="dlg" id="matDlgFolder" aria-labelledby="matDlgFolderTitle">
+            <form method="dialog">
+              <h2 id="matDlgFolderTitle">新增子資料夾</h2>
+              <p data-where></p>
+              <div class="field"><label for="matFolderName">資料夾名稱</label><input class="input" id="matFolderName" maxlength="40" autocomplete="off" /></div>
+              <p class="hint">最多 20 個字。</p>
+              <p class="msg msg--error" role="alert"></p>
+              <div class="actions"><button class="btn" value="cancel" formnovalidate>取消</button><button class="btn btn--primary" value="ok">新增</button></div>
+            </form>
+          </dialog>
+
+          <!-- 刪除資料夾 -->
+          <dialog class="dlg" id="matDlgDelFolder" aria-labelledby="matDlgDelFolderTitle">
+            <form method="dialog">
+              <h2 id="matDlgDelFolderTitle">刪除資料夾「<span data-fname></span>」？</h2>
+              <p data-body></p>
+              <p class="note-box">學習資料不在資料備份裡，刪除後<strong>無法復原</strong>。</p>
+              <div class="actions"><button class="btn" value="cancel">取消</button><button class="btn btn--danger" value="ok">刪除資料夾</button></div>
+            </form>
+          </dialog>
+
+          <!-- 編輯標題與年級 -->
+          <dialog class="dlg" id="matDlgEdit" aria-labelledby="matDlgEditTitle">
+            <form method="dialog">
+              <h2 id="matDlgEditTitle">編輯標題與年級</h2>
+              <div class="field"><label for="matEditTitle">標題</label><input class="input" id="matEditTitle" maxlength="80" autocomplete="off" /></div>
+              <div class="field"><label for="matEditGrade">年級標籤（選填）</label>
+                <select class="input" id="matEditGrade"><option value="">不標示</option><option value="1">國一</option><option value="2">國二</option><option value="3">國三</option></select>
+              </div>
+              <p class="msg msg--error" role="alert"></p>
+              <div class="actions"><button class="btn" value="cancel" formnovalidate>取消</button><button class="btn btn--primary" value="ok">儲存</button></div>
+            </form>
+          </dialog>
+
+          <!-- 移動 -->
+          <dialog class="dlg" id="matDlgMove" aria-labelledby="matDlgMoveTitle">
+            <form method="dialog">
+              <h2 id="matDlgMoveTitle">移動「<span data-ititle></span>」</h2>
+              <div class="field"><label for="matMoveTo">移到哪個資料夾</label><select class="input" id="matMoveTo"></select></div>
+              <div class="actions"><button class="btn" value="cancel">取消</button><button class="btn btn--primary" value="ok">移動</button></div>
+            </form>
+          </dialog>
+
+          <!-- 永久刪除圖片 -->
+          <dialog class="dlg" id="matDlgDelImage" aria-labelledby="matDlgDelImageTitle">
+            <form method="dialog">
+              <h2 id="matDlgDelImageTitle">永久刪除這張圖片？</h2>
+              <p>「<span data-ititle></span>」會從資料夾和儲存空間一起刪除，<strong>無法復原</strong>。</p>
+              <p class="hint">只是暫時不想讓孩子看到的話，可以改用「標為已學會」，之後還能還原。</p>
+              <div class="actions"><button class="btn" value="cancel">取消</button><button class="btn btn--danger" value="ok">永久刪除</button></div>
+            </form>
+          </dialog>
+
+          <!-- 清理多餘檔案 -->
+          <dialog class="dlg" id="matDlgOrphans" aria-labelledby="matDlgOrphansTitle">
+            <form method="dialog">
+              <h2 id="matDlgOrphansTitle">清理多餘的檔案？</h2>
+              <p data-body></p>
+              <div class="actions"><button class="btn" value="cancel">取消</button><button class="btn btn--danger" value="ok">刪除</button></div>
+            </form>
+          </dialog>
+
+          <!-- 預覽 -->
+          <dialog class="dlg dlg--preview" id="matDlgPreview" aria-labelledby="matDlgPreviewTitle">
+            <form method="dialog">
+              <h2 id="matDlgPreviewTitle"></h2>
+              <div class="preview-box" data-img></div>
+              <div class="actions"><button class="btn btn--primary" value="cancel">關閉</button></div>
+            </form>
+          </dialog>
         </section>
 
         <!-- 資料備份 -->
@@ -176,6 +311,9 @@
   <script src="js/milestones.js" defer></script>
   <script src="js/entryLogic.js" defer></script>
   <script src="js/backupLogic.js" defer></script>
+  <script src="js/imageLogic.js" defer></script>
+  <script src="js/materialsLogic.js" defer></script>
+  <script src="js/materialsAdmin.js" defer></script>
   <script src="js/entry.js" defer></script>
 </body>
 </html>

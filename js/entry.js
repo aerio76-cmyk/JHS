@@ -3,7 +3,7 @@
 // 安全：資料庫字串（學生名、科目名、email、錯誤訊息）一律用 textContent 輸出，不用 innerHTML。
 // 權限真正的把關在 RLS 與 Storage 政策；前端隱藏按鈕只是介面。
 
-const ADMIN_VIEWS = { scores: '段考成績', ranks: '校排名', students: '學生與頭像', backup: '資料備份', admins: '白名單' };
+const ADMIN_VIEWS = { scores: '段考成績', ranks: '校排名', students: '學生與頭像', materials: '學習資料', backup: '資料備份', admins: '白名單' };
 const STORAGE_LAST_BACKUP = 'jhs.lastBackupAt';
 const FALLBACK_ACCENT = '#F28B6D';
 
@@ -298,23 +298,8 @@ async function handleRankSubmit(e, msg) {
 }
 
 /* ================= 學生與頭像 ================= */
-// 讀檔 → 置中裁正方形 → 縮到 512（小圖不放大）→ 重新編碼 webp（瀏覽器不支援時退回 jpeg）
-async function reencodeAvatar(file) {
-  const bitmap = await createImageBitmap(file);
-  try {
-    const crop = squareCropRect(bitmap.width, bitmap.height);
-    if (!crop) throw new Error('empty image');
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = crop.output;
-    canvas.getContext('2d').drawImage(bitmap, crop.sx, crop.sy, crop.side, crop.side, 0, 0, crop.output, crop.output);
-    let blob = await new Promise((r) => canvas.toBlob(r, 'image/webp', 0.85));
-    if (!blob || blob.type !== 'image/webp') blob = await new Promise((r) => canvas.toBlob(r, 'image/jpeg', 0.85));
-    if (!blob) throw new Error('encode failed');
-    return { canvas, blob };
-  } finally {
-    bitmap.close();
-  }
-}
+// 讀檔頭 → 解碼時把短邊縮到 512 → 置中裁正方形 → 重新編碼 webp（不支援時 jpeg）。實作在 imageLogic.js（與學習資料共用）
+const reencodeAvatar = (file) => processAvatarImage(file, AVATAR_OUTPUT_SIZE);
 
 // 從 avatar_url 取出 Storage 物件名稱（例如 e.webp）
 function objectNameFromUrl(url) {
@@ -425,9 +410,9 @@ function studentCard(student) {
       preview.replaceChildren(canvas);
       refresh();
       upMsg.ok(`已裁成 ${canvas.width}×${canvas.height}（${Math.max(1, Math.round(blob.size / 1024))} KB），按「儲存」後才會上傳。`);
-    } catch {
-      // 檔案無法解碼是使用者端的正常情況（例如副檔名是 png 但內容損壞），只提示不記錯誤
-      upMsg.error(`「${f.name}」無法讀取成圖片，請換一張。`);
+    } catch (error) {
+      // 檔案無法解碼或太大是使用者端的正常情況，只提示不記錯誤
+      upMsg.error(error?.userMessage || `「${f.name}」無法讀取成圖片，請換一張。`);
     }
   });
   resetBtn.addEventListener('click', () => {
@@ -679,8 +664,8 @@ async function handleAddAdmin(e, msg) {
 
 /* ================= 路由與初始化 ================= */
 function renderRoute() {
-  const views = entry.status?.role === 'super_admin' ? ADMIN_VIEWS : { scores: 1, ranks: 1, students: 1, backup: 1 };
-  const { name } = parseRoute(location.hash, views);
+  const views = entry.status?.role === 'super_admin' ? ADMIN_VIEWS : { scores: 1, ranks: 1, students: 1, materials: 1, backup: 1 };
+  const { name, arg } = parseRoute(location.hash, views);
   const current = name === 'home' ? 'scores' : name;
   document.querySelectorAll('#entryPanel .view').forEach((v) => (v.hidden = v.dataset.view !== current));
   document.querySelectorAll('.admin-nav a').forEach((a) => {
@@ -688,6 +673,7 @@ function renderRoute() {
     else a.removeAttribute('aria-current');
   });
   document.title = `${ADMIN_VIEWS[current]}・家長管理`;
+  if (current === 'materials') showMaterials(arg);
   return current;
 }
 
@@ -787,6 +773,7 @@ async function init() {
     handleRestoreFile(f, restoreMsg);
   });
   showLastBackup();
+  initMaterials();
 
   if (status.role === 'super_admin') {
     document.querySelector('.admin-nav a[data-route="admins"]').hidden = false;
@@ -794,12 +781,15 @@ async function init() {
     renderAdminList(adminMsg);
   }
 
+  let lastView = null;
   window.addEventListener('hashchange', () => {
     const current = renderRoute();
-    document.querySelector(`#entryPanel .view[data-view="${current}"] h1`)?.focus({ preventScroll: true });
+    // 同一頁裡切換（例如學習資料換資料夾）不把焦點拉回標題
+    if (current !== lastView) document.querySelector(`#entryPanel .view[data-view="${current}"] h1`)?.focus({ preventScroll: true });
+    lastView = current;
   });
   document.querySelectorAll('#entryPanel .view h1').forEach((h1) => h1.setAttribute('tabindex', '-1'));
-  renderRoute();
+  lastView = renderRoute();
   loadExistingScores(scoreMsg);
   loadExistingRank(rankMsg);
 }
