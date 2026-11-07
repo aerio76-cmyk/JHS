@@ -118,7 +118,7 @@ alter table public.material_folders drop constraint if exists material_folders_n
 alter table public.material_folders add constraint material_folders_name_check check (
   char_length(name) between 1 and 20
   and name = btrim(name, ' ' || chr(12288))
-  and name !~ '[[:cntrl:]­​-‏ -‮⁠-⁤﻿]'
+  and name !~ '[[:cntrl:]\u00ad\u200b-\u200f\u2028-\u202e\u2060-\u2064\ufeff]'
 );
 alter table public.material_folders drop constraint if exists material_folders_system_key_check;
 alter table public.material_folders add constraint material_folders_system_key_check check (
@@ -213,7 +213,7 @@ alter table public.materials drop constraint if exists materials_title_check;
 alter table public.materials add constraint materials_title_check check (
   char_length(title) between 1 and 60
   and title = btrim(title, ' ' || chr(12288))
-  and title !~ '[[:cntrl:]­​-‏ -‮⁠-⁤﻿]'
+  and title !~ '[[:cntrl:]\u00ad\u200b-\u200f\u2028-\u202e\u2060-\u2064\ufeff]'
 );
 alter table public.materials drop constraint if exists materials_grade_tag_check;
 alter table public.materials add constraint materials_grade_tag_check check (grade_tag in (1, 2, 3));

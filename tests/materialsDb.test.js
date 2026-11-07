@@ -76,6 +76,13 @@ test('學習資料庫 patch', async (t) => {
     return;
   }
 
+  await t.test('SQL 檔不含看不見的字元（複製貼到 SQL Editor 時會被改掉，造成正規式壞掉）', () => {
+    for (const f of ['supabase/patches/2026-11-07_materials.sql', 'supabase/patches/2026-10-19_security_hardening.sql', 'supabase/schema.sql']) {
+      const hits = [...readSql(f)].filter((ch) => /[\p{Cf}\p{Zl}\p{Zp}]/u.test(ch)).map((ch) => ch.codePointAt(0).toString(16));
+      assert.deepEqual(hits, [], `${f} 含有看不見的字元`);
+    }
+  });
+
   await t.test('前置檢查：沒有先套安全強化 patch 就中止', async () => {
     const db = await makeDb({ hardening: false, materials: false });
     await assert.rejects(db.exec(readSql('supabase/patches/2026-11-07_materials.sql')), /2026-10-19_security_hardening\.sql/);
@@ -303,7 +310,7 @@ test('學習資料庫 patch', async (t) => {
     await assert.rejects(db.query(`update public.material_folders set is_system = false where id = '${sci}'`), /不能變更固定分類/);
     assertDenied(await run(db, ADMIN, `insert into public.material_folders (parent_id, name) values ('${sci}', '生物')`), '同層重名', /duplicate key/);
     await assert.rejects(db.query(`insert into public.material_folders (name, is_system, system_key) values ('國文', true, 'other')`), /duplicate key/, '頂層重名');
-    for (const bad of ['', ' 前後空白 ', '　電學', '電​學', '電­學', '一二三四五六七八九十一二三四五六七八九十一', 'tab\tname']) {
+    for (const bad of ['', ' 前後空白 ', '\u3000電學', '電\u200b學', '電\u00ad學', '一二三四五六七八九十一二三四五六七八九十一', 'tab\tname']) {
       assertDenied(await run(db, ADMIN, 'insert into public.material_folders (parent_id, name) values ($1, $2)', [sci, bad]), `名稱「${bad}」`, /material_folders_name_check/);
     }
   });

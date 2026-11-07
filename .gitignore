@@ -2,3 +2,7 @@
 Thumbs.db
 *.local.sql
 node_modules/
+
+# 本機憑證（測試專案連線用），永遠不進版控
+.env
+.env.*
