@@ -1,4 +1,6 @@
 -- 安全強化（Phase 4 security-auditor 建議，2026-10-19）
+-- ⚠ 已執行過 2026-11-07_materials.sql 的資料庫：重跑本檔後，必須接著再執行一次 2026-11-07_materials.sql，
+--   否則 is_admin() 等函式裡「觀看帳號一律不是管理員」的保護會被本檔的舊定義蓋掉。
 -- 執行方式：使用者在 Supabase Dashboard → SQL Editor 貼上整份執行。可重複執行；整份是一個 transaction，
 -- 任何一步失敗（包括下面的安全檢查）都會全部還原，不會改到一半。
 --
