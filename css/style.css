@@ -619,3 +619,9 @@ body:has(dialog.lightbox[open]) { overflow: hidden; }
 .retry-box { justify-content: center; }
 .admin-notice { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
 .admin-notice p { margin: 0; flex: 1 1 240px; }
+
+/* 孩子端：返回上一層／回首頁（手繪圖示按鈕） */
+.folder-nav { display: flex; flex-wrap: wrap; gap: 8px; }
+.btn--icon { gap: 8px; padding: 0 16px 0 10px; min-height: 48px; }
+.btn--icon img { width: 28px; height: 28px; flex: none; }
+.btn--icon[hidden] { display: none; }

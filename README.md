@@ -130,6 +130,10 @@ Authentication 設定建議：**Confirm email、Secure email change 保持開啟
    ```
    出現「有 Email 以外的登入身分」或「不能和管理員相同」時，換一個 email 重建。
 
+**常用維護指令**：`supabase/ops/常用維護指令.sql` 整理了查看觀看帳號狀態、加入／移出觀看名單、直接改 email、重設密碼、檢查管理員與權限等 SQL，每段都有用途說明；需要時只複製那一段到 SQL Editor 執行。
+
+**改觀看帳號的 email 或密碼**：在後台直接修改那個帳號即可，觀看名單用帳號 ID 記錄，不用改。**如果是刪掉帳號再重建**，名單裡那一列會跟著刪除，重建後要再執行一次上面的 insert。email 改成收不到信的地址時，後台可能要求確認信而遲遲不生效，請改用 SQL 直接設定（可以請 Claude Code 提供）。
+
 **平板遺失或密碼外流**：`delete from public.viewers where user_id = (select id from auth.users where email = '觀看帳號的 email');`，再到後台刪除或重設該帳號。因為不使用簽名網址，撤銷立即生效。
 
 **孩子端突然什麼都看不到**：可能是觀看帳號被連上了其他登入身分（這時觀看權限會自動失效），到後台檢查該帳號的 Identities。

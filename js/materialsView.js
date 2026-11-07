@@ -304,6 +304,11 @@ function renderFolder(id) {
   const src = categoryIcon(path[0]?.system_key);
   $('folderIcon').replaceChildren(...(src ? [el('img', { src, alt: '', width: '56', height: '56' })] : []));
   $('folderTitle').textContent = f.name;
+  // 返回按鈕：上一層（第一層的上一層就是首頁）；已在第一層時不重複顯示「首頁」
+  const parent = f.parent_id ? mv.tree.byId.get(f.parent_id) : null;
+  $('upLink').href = parent ? `#/folder/${parent.id}` : '#/home';
+  $('upLabel').textContent = `上一層：${parent ? parent.name : '學習資料庫首頁'}`;
+  $('homeLink').hidden = !parent;
   const subs = visibleSubfolders(mv.tree.byId, id, mv.materials);
   $('subfolders').hidden = !subs.length;
   $('subfolders').replaceChildren(...subs.map((s) => el('li', {}, el('a', { class: 'subfolder', href: `#/folder/${s.id}` },
