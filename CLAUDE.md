@@ -8,7 +8,8 @@
 - v2.0 方向：移除所有遊戲化／夥伴角色／徽章／英文題庫；改為里程碑（前端計算）、學年地圖、段考回顧、頭像。
 - 護欄：不新增後端、不引入打包工具／框架、不新增資料表／Storage bucket（**學習資料庫除外**，見規劃書 v2.5 第九節）；公開頁只顯示英文名與成績（不得出現真實姓名、學校、班級）。
 - `stats.js` 判定門檻不改；使用者文案不用「退步」「差」等負面詞。
-- SQL 只撰寫，**由使用者在 Supabase SQL Editor 手動執行**，不要代為連線執行。2026-10-19 起資料庫已依 v2.0 `schema.sql` 重建（不需遷移）。
+- SQL 只撰寫，**正式專案一律由使用者在 Supabase SQL Editor 手動執行**，不要代為連線執行。2026-10-19 起資料庫已依 v2.0 `schema.sql` 重建（不需遷移）。
+  - 例外（使用者 2026-11-07 同意；免費方案專案數已滿，沒有測試專案）：Claude Code 可用 `.env.test`（不進版控）裡**正式專案**的連線字串做兩件事：①唯讀查詢；②**試跑**——在單一 transaction 內執行 patch 與檢查，最後一定 rollback，不留下任何變更。真正套用 patch 仍由使用者在 SQL Editor 手動執行。不使用 Personal Access Token 或 service_role key。
 - `.github/workflows/supabase-keepalive.yml` 必須留在 `main`（排程只在預設分支執行），防止 Supabase 免費專案閒置被暫停。
 
 ## 與 Cowork 協作（AI 協作橋接規範 v2 重點）

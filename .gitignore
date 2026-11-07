@@ -1,3 +1,13 @@
 .DS_Store
 Thumbs.db
 *.local.sql
+
+# 本機憑證（測試連線用），永遠不進版控
+.env
+.env.*
+
+# 測試用套件
+node_modules/
+
+# 含營運現況的本機交接檔（不公開）
+handoff/local/
