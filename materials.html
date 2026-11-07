@@ -84,6 +84,10 @@
 
     <!-- 資料夾 -->
     <div class="stack" data-view="folder" hidden>
+      <nav class="folder-nav" aria-label="返回">
+        <a class="btn btn--icon" id="upLink" href="#/home"><img src="assets/materials-icons/back.svg" alt="" width="28" height="28" /><span id="upLabel">上一層</span></a>
+        <a class="btn btn--icon" id="homeLink" href="#/home"><img src="assets/materials-icons/home.svg" alt="" width="28" height="28" /><span>學習資料庫首頁</span></a>
+      </nav>
       <nav class="crumbs" aria-label="目前位置"><ol id="crumbs"></ol></nav>
       <div class="folder-head"><span id="folderIcon"></span><h1 class="section-title" id="folderTitle" tabindex="-1"></h1></div>
       <ul class="subfolders" id="subfolders" aria-label="子資料夾"></ul>
@@ -103,7 +107,9 @@
       </form>
       <h1 class="section-title" id="searchTitle" tabindex="-1"></h1>
       <ul class="thumb-grid" id="searchThumbs"></ul>
-      <a class="btn" href="#/home">← 回首頁</a>
+      <nav class="folder-nav" aria-label="返回">
+        <a class="btn btn--icon" href="#/home"><img src="assets/materials-icons/home.svg" alt="" width="28" height="28" /><span>學習資料庫首頁</span></a>
+      </nav>
     </div>
 
     <p class="msg msg--error" id="viewError" role="alert"></p>

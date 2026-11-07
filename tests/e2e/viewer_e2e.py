@@ -120,9 +120,11 @@ with sync_playwright() as p:
     ok('自然：只顯示有圖的子資料夾（理化），生物（只有已學會）與地球科學（空）隱藏', len(subs) == 1 and '理化' in subs[0] and '2 張' in subs[0], ' / '.join(subs))
     ok('切換頁面後焦點移到標題', pg.evaluate("document.activeElement.id") == 'folderTitle')
     ok('麵包屑：學習資料庫 › 自然', pg.locator('#crumbs').inner_text().replace('\n', '') == '學習資料庫自然')
+    ok('第一層：「上一層」回首頁，不重複顯示「首頁」鈕', pg.locator('#upLabel').inner_text() == '上一層：學習資料庫首頁' and pg.locator('#upLink').get_attribute('href') == '#/home' and pg.locator('#homeLink').is_hidden())
     pg.locator('.subfolder', has_text='理化').click()
     pg.wait_for_function("document.getElementById('folderTitle').textContent === '理化'")
     pg.wait_for_function("[...document.querySelectorAll('#thumbs img')].filter(i => i.src.startsWith('blob:')).length === 2", timeout=10000)
+    ok('第二層：「上一層：自然」與「學習資料庫首頁」兩顆按鈕', pg.locator('#upLabel').inner_text() == '上一層：自然' and pg.locator('#homeLink').is_visible())
     ok('理化：2 張縮圖（已學會的不出現）', pg.locator('#thumbs .thumb').count() == 2 and '已經學會的圖' not in pg.locator('#thumbs').inner_text())
     pg.screenshot(path=str(OUT / 'p3-03-folder_1280.png'), full_page=True)
 
@@ -195,6 +197,13 @@ with sync_playwright() as p:
     ok('換回其他張仍正常顯示', pg.locator('#lbTitle').inner_text() == '歐姆定律整理')
     pg.keyboard.press('Escape')
     pg.evaluate("window.__fake.db.materials.find(m => m.title === '密度與浮力').is_learned = false")
+
+    # 返回按鈕實際操作
+    pg.click('#upLink'); pg.wait_for_function("document.getElementById('folderTitle').textContent === '自然'")
+    ok('按「上一層」回到自然、焦點移到標題', pg.evaluate("document.activeElement.id") == 'folderTitle')
+    pg.locator('.subfolder', has_text='理化').click(); pg.wait_for_function("document.getElementById('folderTitle').textContent === '理化'")
+    pg.click('#homeLink'); pg.wait_for_selector('[data-view="home"]:not([hidden])')
+    ok('按「學習資料庫首頁」直接回首頁', True)
 
     # 搜尋
     pg.goto(BASE + '?fake=anon#/home'); pg.reload()  # 重新載入：假 Supabase 回到未登入

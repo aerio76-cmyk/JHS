@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="首頁">
+  <path d="M8 31 L32 9 L56 31 L50 31 L50 55 L14 55 L14 31 Z" fill="#6FB7D6" transform="translate(4 4)" opacity="0.75"/>
+  <g stroke="#3A3440" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M7 31.5 C15 24 23.5 16.5 32 9 C40.5 16.5 48.5 24 57 31.5" fill="none"/>
+    <path d="M14 27 C13.5 36 14.5 46 14 55 C26 54.5 38 55.5 50 55 C50.5 46 49.5 36 50 27" fill="none"/>
+    <path d="M27 55 C27 50 26.5 45 27 40 C30.5 39.5 33.5 40.5 37 40 C37.5 45 37 50 37 55" fill="none" stroke-width="2.6"/>
+    <path d="M42 18 L42 11 L48 11 L48 23" fill="none" stroke-width="2.6"/>
+  </g>
+</svg>

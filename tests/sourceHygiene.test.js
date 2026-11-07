@@ -8,7 +8,7 @@ const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 // tests/ 不檢查：既有測試刻意放了 BOM、零寬字元當測試資料
-const DIRS = ['js', 'css', 'supabase', 'supabase/patches', '.'];
+const DIRS = ['js', 'css', 'supabase', 'supabase/patches', 'supabase/ops', '.'];
 const EXT = /\.(js|css|html|sql)$/;
 
 test('原始碼不含看不見的字元', () => {
