@@ -274,6 +274,48 @@ function uploadSummary(items) {
   return `${n} 張中：${parts.join('、')}`;
 }
 
+/* ---------------- 孩子端（materials.html） ---------------- */
+// 觀看登入失敗的訊息：固定中文，不直接顯示伺服器回傳的文字；
+// 不區分「帳號不存在」與「密碼錯誤」，避免洩漏帳號是否存在
+function viewerLoginMessage(error) {
+  if (!error) return '';
+  const raw = `${error.code ?? ''} ${error.status ?? ''} ${error.message ?? ''}`;
+  if (/over_request_rate_limit|over_email_send_rate_limit|429|rate limit/i.test(raw)) return '嘗試次數太多，請過幾分鐘再試。';
+  if (/invalid_credentials|invalid login|400|email_not_confirmed|user_banned|validation_failed/i.test(raw)) return '帳號或密碼不正確，請再試一次。';
+  if (error.status === 0 || error.name === 'AuthRetryableFetchError' || /load failed/i.test(raw)) return '無法連線，請確認網路後再試一次。'; // iPad Safari 的網路錯誤
+  if (/fetch|network|timeout|5\d\d/i.test(raw)) return '無法連線，請確認網路後再試一次。';
+  return '登入沒有成功，請再試一次；如果一直失敗，請問家長。';
+}
+
+// 只看「學習中」的圖片（管理員登入時資料庫會回傳全部，前端也要自己過濾）
+const activeMaterials = (materials) => materials.filter((m) => !m.is_learned);
+
+// 標題搜尋：不分大小寫、忽略多餘空白；空字串回傳空陣列
+function searchMaterials(materials, query) {
+  const q = cleanText(query).toLowerCase();
+  if (!q) return [];
+  const words = q.split(new RegExp(`[ ${String.fromCharCode(0x3000)}]+`)).filter(Boolean); // 全形空白也當分隔
+  return materials.filter((m) => {
+    const t = String(m.title ?? '').toLowerCase();
+    return words.every((w) => t.includes(w));
+  });
+}
+
+// 最近新增：依建立時間由新到舊
+function recentMaterials(materials, n = 8) {
+  return [...materials].sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || String(a.id).localeCompare(String(b.id))).slice(0, n);
+}
+
+// 資料夾（含子資料夾）裡有幾張圖；孩子端隱藏 0 張的子資料夾（頂層分類一律顯示）
+function deepMaterialCount(byId, folderId, materials) {
+  const ids = new Set(descendantIds(byId, folderId));
+  return materials.filter((m) => ids.has(m.folder_id)).length;
+}
+
+function visibleSubfolders(byId, folderId, materials) {
+  return (byId.get(folderId)?.children ?? []).filter((c) => deepMaterialCount(byId, c.id, materials) > 0);
+}
+
 if (typeof module !== 'undefined') {
   module.exports = {
     FOLDER_MAX_DEPTH, FOLDER_NAME_MAX, TITLE_MAX, ORPHAN_GRACE_MS,
@@ -281,5 +323,6 @@ if (typeof module !== 'undefined') {
     buildFolderTree, folderPath, folderDepth, canAddSubfolder, descendantIds, nextSort, categoryIcon,
     materialPaths, isRetryableError, isDefiniteRejection, uploadMaterial, replaceMaterialImage, createLimiter,
     collectFolderFiles, findOrphans, formatBytes, uploadSummary,
+    viewerLoginMessage, activeMaterials, searchMaterials, recentMaterials, deepMaterialCount, visibleSubfolders,
   };
 }

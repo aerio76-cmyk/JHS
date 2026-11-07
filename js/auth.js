@@ -19,7 +19,8 @@ function loginWithGoogle() {
 }
 
 async function logout() {
-  await sbClient.auth.signOut();
+  // 只登出這台裝置：觀看帳號是多台平板共用的，global 登出會讓其他平板一起被登出
+  await sbClient.auth.signOut({ scope: 'local' });
   window.location.reload();
 }
 

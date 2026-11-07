@@ -523,7 +523,7 @@ select.input { appearance: auto; }
   .menu { position: fixed; left: 12px; right: 12px; top: auto; bottom: 12px; min-width: 0; z-index: 20; }
 }
 /* 縮圖：實際圖片（正方形縮圖） */
-.thumb__btn img { display: block; width: 100%; aspect-ratio: 1; object-fit: cover; }
+.thumb__btn img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; }
 .thumb__missing { display: grid; place-items: center; aspect-ratio: 1; color: var(--ink-soft); font-size: .8rem; background: var(--neutral-cell); }
 .upload-item__dot { width: 12px; height: 12px; border-radius: 50%; background: var(--accent-mid); justify-self: center; }
 .dlg--preview { width: min(900px, calc(100% - 32px)); }
@@ -532,3 +532,90 @@ select.input { appearance: auto; }
 #matFolderIcon:empty { display: none; }
 #matFolderIcon img { width: 56px; height: 56px; display: block; }
 @media (prefers-reduced-motion: reduce) { .thumb__btn, .menu { transition: none; } }
+
+/* ===== 學習資料庫（孩子端 materials.html）：依 Phase 0 模擬圖 ===== */
+/* 登入（只作用在觀看登入的表單，不影響家長端的登入卡片） */
+.pw-wrap { display: grid; grid-template-columns: 1fr auto; gap: 8px; }
+.login-card form { display: grid; gap: 12px; }
+.login-card form .btn--primary { width: 100%; }
+
+/* 搜尋 */
+.search { position: relative; }
+.search .input { width: 100%; min-height: 48px; padding-left: 44px; font-size: 1rem; }
+.search img { position: absolute; left: 14px; top: 50%; translate: 0 -50%; pointer-events: none; }
+
+/* 六大分類 */
+.cat-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (min-width: 1000px) { .cat-grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+@media (max-width: 479px) { .cat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.cat-tile {
+  display: grid; justify-items: center; gap: 4px; padding: 16px 8px 12px; min-height: 44px;
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--wobble);
+  color: var(--ink); text-decoration: none; text-align: center;
+  transition: transform .15s ease, border-color .15s ease;
+}
+@media (hover: hover) { .cat-tile:hover { border-color: var(--ink); transform: translateY(-2px) rotate(-.6deg); } } /* 平板點擊後不會卡在 hover */
+.cat-tile img { width: 96px; height: 96px; }
+@media (max-width: 479px) { .cat-tile img { width: 72px; height: 72px; } }
+.cat-tile__name { font-family: var(--font-hand); font-size: 1.25rem; line-height: 1.2; }
+.cat-tile__count { font-size: .8rem; color: var(--ink-soft); }
+
+/* 子資料夾 */
+.subfolders { display: flex; flex-wrap: wrap; gap: 8px; list-style: none; margin: 0; padding: 0; }
+.subfolder {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 48px; padding: 0 16px 0 12px;
+  border: 1.5px solid var(--line); border-radius: var(--radius-sm); background: var(--surface);
+  color: var(--ink); text-decoration: none; font-weight: 500;
+}
+.subfolder:hover { border-color: var(--ink); }
+.subfolder small { color: var(--ink-soft); font-weight: 400; }
+#folderIcon:empty { display: none; }
+#folderIcon img { width: 56px; height: 56px; display: block; }
+
+/* 最近新增 */
+.recent-strip { list-style: none; margin: 0; padding: 4px 2px 8px; display: grid; grid-auto-flow: column; grid-auto-columns: 140px; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory; }
+.recent-strip > li { scroll-snap-align: start; }
+[data-view="folder"] .empty, [data-view="search"] .empty { text-align: center; padding: 32px 16px; border: 2px dashed var(--line); border-radius: var(--radius); }
+
+/* 縮圖：載入前顯示淡色底 */
+.thumb__btn img:not([src]) { background: var(--neutral-cell); }
+
+/* 放大檢視 */
+.lightbox {
+  position: fixed; inset: 0; width: 100%; height: 100%; max-width: none; max-height: none; margin: 0; padding: 0; border: 0;
+  background: #18151C; color: #fff;
+}
+.lightbox[open] { display: grid; grid-template-rows: auto 1fr auto; }
+.lightbox::backdrop { background: transparent; }
+body:has(dialog.lightbox[open]) { overflow: hidden; }
+.lightbox__bar { display: flex; align-items: center; gap: 12px; padding: 8px 8px 8px 16px; }
+.lightbox__title { flex: 1; margin: 0; font-size: 1rem; font-weight: 500; overflow-wrap: anywhere; }
+.lightbox__count { font-variant-numeric: tabular-nums; color: #D8D2DE; font-size: .9rem; white-space: nowrap; }
+.lightbox__stage { position: relative; display: grid; place-items: center; padding: 8px 64px; min-height: 0; touch-action: pan-y pinch-zoom; }
+.lightbox__stage.is-zoomed { touch-action: auto; } /* 雙指放大後可以往各方向拖動 */
+.lightbox__img { width: 100%; height: 100%; min-height: 0; display: grid; place-items: center; container-type: size; }
+/* 以容器尺寸為上限等比縮放：長圖、寬圖都完整顯示在畫面內（需要細看時用雙指放大） */
+.lightbox__img img { max-width: 100cqw; max-height: 100cqh; width: auto; height: auto; object-fit: contain; border-radius: 6px; background: #fff; }
+.lightbox__loading { color: #D8D2DE; margin: 0; text-align: center; padding: 0 16px; }
+.lb-btn {
+  display: inline-grid; place-items: center; width: 52px; height: 52px; border-radius: 50%;
+  border: 1.5px solid rgb(255 255 255 / .5); background: rgb(255 255 255 / .1); color: #fff; cursor: pointer; font-size: 1.4rem;
+}
+.lb-btn:hover { background: rgb(255 255 255 / .22); }
+.lb-btn:disabled { opacity: .3; cursor: default; }
+.lb-btn--prev, .lb-btn--next { position: absolute; top: 50%; translate: 0 -50%; }
+.lb-btn--prev { left: 6px; }
+.lb-btn--next { right: 6px; }
+.lightbox__foot { padding: 6px 16px 14px; text-align: center; color: #D8D2DE; font-size: .8rem; margin: 0; }
+.lightbox :focus-visible { outline-color: #9EC1FF; }
+@media (max-width: 599px) {
+  .lightbox__stage { padding: 8px 8px 72px; }
+  .lb-btn--prev, .lb-btn--next { top: auto; bottom: 8px; translate: none; }
+  .lb-btn--prev { left: calc(50% - 64px); }
+  .lb-btn--next { right: calc(50% - 64px); }
+}
+@media (prefers-reduced-motion: reduce) { .cat-tile, .cat-tile:hover { transition: none; transform: none; } }
+
+.retry-box { justify-content: center; }
+.admin-notice { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+.admin-notice p { margin: 0; flex: 1 1 240px; }

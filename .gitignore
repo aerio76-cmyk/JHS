@@ -11,3 +11,6 @@ node_modules/
 
 # 含營運現況的本機交接檔（不公開）
 handoff/local/
+
+# 端對端測試的截圖
+tests/e2e/screenshots/

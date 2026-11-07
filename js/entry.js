@@ -794,4 +794,11 @@ async function init() {
   loadExistingRank(rankMsg);
 }
 
-document.addEventListener('DOMContentLoaded', init);
+document.addEventListener('DOMContentLoaded', () => {
+  // 不允許被別的網站用框架嵌入（防點擊劫持；GitHub Pages 不能送 X-Frame-Options，meta CSP 的 frame-ancestors 無效）
+  if (window.top !== window.self) {
+    document.body.replaceChildren();
+    return;
+  }
+  init();
+});

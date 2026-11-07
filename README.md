@@ -109,6 +109,31 @@ Supabase 免費方案沒有自動備份，請用家長端「資料備份」自�
 
 Authentication 設定建議：**Confirm email、Secure email change 保持開啟**；Redirect URLs 只放精確網址（不要用 `*`）。
 
+## 學習資料庫
+
+家長把對學習有幫助的圖片依科目整理成資料夾，孩子用共用的「觀看帳號」在平板上瀏覽（規劃書第九節）。
+
+- **資料庫**：`supabase/patches/2026-11-07_materials.sql`（在安全強化 patch 之後執行，可重複執行）。建立觀看名單 `viewers`、資料夾、圖片、私有 bucket `materials` 與所有權限；六大分類由種子建立。
+  - ⚠ 這份 patch 會重新定義 `is_admin()` 等函式（觀看帳號一律不是管理員）。**之後若重跑安全強化 patch，必須接著再跑一次這份。**
+- **家長端**：`entry.html` →「學習資料」：資料夾、批次上傳（自動壓縮、縮圖、移除拍攝資訊）、改標題、移動、換圖、標為已學會、刪除、清理多餘檔案。
+- **孩子端**：`materials.html`（首頁頁尾的「學習資料庫」）：用觀看帳號登入，瀏覽、搜尋、放大檢視。圖片一律登入後才能下載，不產生可外流的網址；已學會的圖片不顯示。
+- **學習資料不在「資料備份」裡**，刪除後無法救回。
+
+**建議設定（Supabase Authentication）**：啟用 Email 登入但**不開放註冊**；Manual linking 保持關閉；Secure email change 開啟；最低密碼長度設長一點（例如 12 字以上）。
+
+**新增觀看帳號**：
+1. Authentication → Users → Add user：email 用一個沒有人能拿去註冊 Google 的地址（例如不存在的網域，或家長自己信箱的別名），不能和任何管理員相同；勾選自動確認。密碼自己保管，不要寫進任何檔案。
+2. SQL Editor 執行（換成那個帳號的 email）：
+   ```sql
+   insert into public.viewers (user_id, label)
+   select id, '平板' from auth.users where email = '觀看帳號的 email';
+   ```
+   出現「有 Email 以外的登入身分」或「不能和管理員相同」時，換一個 email 重建。
+
+**平板遺失或密碼外流**：`delete from public.viewers where user_id = (select id from auth.users where email = '觀看帳號的 email');`，再到後台刪除或重設該帳號。因為不使用簽名網址，撤銷立即生效。
+
+**孩子端突然什麼都看不到**：可能是觀看帳號被連上了其他登入身分（這時觀看權限會自動失效），到後台檢查該帳號的 Identities。
+
 ## Supabase 防暫停
 
 免費方案連續 7 天沒有活動會被暫停。`.github/workflows/supabase-keepalive.yml` 每 3 天讀一次資料庫
@@ -120,6 +145,7 @@ Authentication 設定建議：**Confirm email、Secure email change 保持開啟
 JHS/                    # 省略規劃書、交接檔等協作文件
 ├── index.html          # 公開成長儀表板
 ├── entry.html          # 家長輸入頁（需登入）
+├── materials.html      # 學習資料庫（孩子端，觀看帳號登入）
 ├── css/style.css         # v2.0 設計 token + 版面（前台與家長端共用）
 ├── js/
 │   ├── config.js        # Supabase 連線設定
@@ -130,20 +156,26 @@ JHS/                    # 省略規劃書、交接檔等協作文件
 │   ├── auth.js           # entry.html 共用登入邏輯
 │   ├── entryLogic.js     # 家長端純函式：表單驗證、頭像檔案驗證與裁切
 │   ├── backupLogic.js    # 資料備份純函式：分頁讀取、CSV、JSON、還原 SQL
+│   ├── imageLogic.js     # 圖片處理（頭像與學習資料共用）：檔頭解析、縮放、重新編碼
+│   ├── materialsLogic.js # 學習資料純函式：資料夾樹、上傳補償、搜尋、登入訊息
+│   ├── materialsAdmin.js # entry.html「學習資料」
+│   ├── materialsView.js  # materials.html 用
 │   └── entry.js          # entry.html 用
 ├── assets/avatars/       # 內建手繪頭像（cat, bunny, bear, penguin）
 ├── assets/icon.svg       # 網站圖示（另有 icon-32.png、apple-touch-icon.png）
-├── tests/                # node --test 單元測試
+├── assets/materials-icons/ # 學習資料庫六大分類圖示（手繪，風格 B）
+├── tests/                # node --test 單元測試；tests/e2e/ 是 Edge 端對端測試（見其 README）
 ├── handoff/archive/      # 已封存的協作交接檔
 ├── docs/archive/         # 舊版規劃書（v1.0、v2.0、v2.1）
 └── supabase/
     ├── schema.sql        # 全新安裝用
-    └── seed_data.sql
+    ├── seed_data.sql
+    └── patches/          # 既有資料庫的變更（依日期執行）
 ```
 
 ## 設計模擬圖
 
-Phase 0 的靜態模擬圖（假資料）不放在上線的網站裡，保存在 git tag `phase0-mockups`：
+Phase 0 的靜態模擬圖（假資料）不放在上線的網站裡，保存在 git tag `phase0-mockups`（學習資料庫的在 `phase0-materials-mockups`）：
 
 ```
 git checkout phase0-mockups -- mockups/   # 取回到工作目錄（看完可刪除，不要 commit）
@@ -151,17 +183,22 @@ git checkout phase0-mockups -- mockups/   # 取回到工作目錄（看完可刪
 
 ## 測試
 
-計算與驗證邏輯（`js/stats.js`、`js/milestones.js`、`js/entryLogic.js`、`js/backupLogic.js`）是純函式，用 Node 內建測試執行，不需安裝任何套件：
+計算與驗證邏輯（`js/stats.js`、`js/milestones.js`、`js/entryLogic.js`、`js/backupLogic.js`、`js/imageLogic.js`、`js/materialsLogic.js`）是純函式，用 Node 內建測試執行：
 
 ```
+npm install   # 只有資料庫權限測試需要（開發用 PGlite）；沒裝時那組測試會自動跳過
 npm test
 ```
+
+- `tests/materialsDb.test.js`：在 PGlite 上套用 `schema.sql` 與 patches，測匿名、觀看帳號、管理員等角色的讀寫權限。
+- `tests/sourceHygiene.test.js`：原始碼不得含看不見的字元（複製貼上到 SQL Editor 時會被改掉）。
+- 端對端測試（Edge、假 Supabase）見 `tests/e2e/README.md`。
 
 （等同 `node --test "tests/**/*.test.js"`；Node 24 不接受只給資料夾 `tests/`。）
 
 ## 搜尋引擎
 
-`index.html`、`entry.html` 都有 `<meta name="robots" content="noindex, nofollow">`，請搜尋引擎不要收錄。
+`index.html`、`entry.html`、`materials.html` 都有 `<meta name="robots" content="noindex, nofollow">`，請搜尋引擎不要收錄。
 
 - 這**不是存取控制**：知道網址的人仍然看得到前台，資料的保護靠 RLS。
 - 已經被收錄的頁面要過一段時間才會從搜尋結果消失。
