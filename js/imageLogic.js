@@ -8,6 +8,8 @@
 const IMAGE_SOURCE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const IMAGE_MAX_SOURCE_BYTES = 10 * 1024 * 1024;
 const IMAGE_MAX_PIXELS = 50_000_000;
+const IMAGE_MAX_SIDE = 20000; // 單邊上限：極細長的圖即使總像素不多，退回整張解碼時仍很吃記憶體
+const IMAGE_MAX_RATIO = 30; // 長寬比上限（1:30）
 const IMAGE_HEADER_BYTES = 256 * 1024; // 足夠涵蓋 JPEG 的 EXIF 區段
 
 const MATERIAL_MAX_WIDTH = 1600;
@@ -145,6 +147,9 @@ function validateImageSource(file) {
 function checkImageHeader(header, file) {
   const name = String(file?.name || '這個檔案');
   if (!header) return { ok: false, retryable: false, error: `「${name}」無法辨識圖片內容，可能檔案損壞，沒有上傳。` };
+  if (Math.max(header.width, header.height) > IMAGE_MAX_SIDE || Math.max(header.width, header.height) / Math.min(header.width, header.height) > IMAGE_MAX_RATIO) {
+    return { ok: false, retryable: false, error: `「${name}」的形狀太細長（${header.width}×${header.height}），請先裁切再上傳。` };
+  }
   if (header.width * header.height > IMAGE_MAX_PIXELS) {
     const mp = Math.round((header.width * header.height) / 1e6);
     return { ok: false, retryable: false, error: `「${name}」尺寸太大（約 ${mp} 百萬像素，上限 50），請先縮小再上傳。` };
@@ -267,7 +272,7 @@ async function processAvatarImage(file, output) {
 
 if (typeof module !== 'undefined') {
   module.exports = {
-    IMAGE_SOURCE_TYPES, IMAGE_MAX_SOURCE_BYTES, IMAGE_MAX_PIXELS, MATERIAL_MAX_WIDTH, MATERIAL_MAX_HEIGHT, MATERIAL_THUMB_SIZE, MATERIAL_MAX_BYTES,
+    IMAGE_SOURCE_TYPES, IMAGE_MAX_SOURCE_BYTES, IMAGE_MAX_PIXELS, IMAGE_MAX_SIDE, IMAGE_MAX_RATIO, MATERIAL_MAX_WIDTH, MATERIAL_MAX_HEIGHT, MATERIAL_THUMB_SIZE, MATERIAL_MAX_BYTES,
     readImageHeader, fitWithin, thumbCropRect, avatarDecodeSize, validateImageSource, checkImageHeader,
   };
 }

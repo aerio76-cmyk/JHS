@@ -115,3 +115,10 @@ test('checkImageHeader：認不出來、超過 5000 萬像素都拒絕（在解�
   assert.match(L.checkImageHeader({ width: 10000, height: 6000 }, { name: 'x.png' }).error, /約 60 百萬像素/);
   assert.equal(L.checkImageHeader({ width: 8000, height: 6000 }, { name: 'x.png' }).ok, true);
 });
+
+test('checkImageHeader：極細長的圖在解碼前拒絕（單邊 20000、長寬比 1:30）', () => {
+  assert.match(L.checkImageHeader({ width: 1, height: 50000000 }, { name: 'x.png' }).error, /太細長/);
+  assert.match(L.checkImageHeader({ width: 25000, height: 1000 }, { name: 'x.png' }).error, /太細長/);
+  assert.match(L.checkImageHeader({ width: 100, height: 3100 }, { name: 'x.png' }).error, /太細長/);
+  assert.equal(L.checkImageHeader({ width: 1000, height: 8000 }, { name: 'x.png' }).ok, true, '一般的長資訊圖可以');
+});

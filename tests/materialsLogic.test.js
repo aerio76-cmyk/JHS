@@ -290,3 +290,52 @@ test('formatBytes／uploadSummary', () => {
   assert.equal(L.formatBytes(15.4 * 1048576), '15.4 MB');
   assert.equal(L.uploadSummary([{ status: 'done' }, { status: 'done' }, { status: 'uploading' }, { status: 'failed' }]), '4 張中：2 張完成、1 張處理中、1 張沒有上傳');
 });
+
+/* ---------- 孩子端 ---------- */
+test('viewerLoginMessage：固定中文、不區分帳號不存在或密碼錯、不顯示伺服器原文', () => {
+  assert.equal(L.viewerLoginMessage({ code: 'invalid_credentials', status: 400, message: 'Invalid login credentials' }), '帳號或密碼不正確，請再試一次。');
+  assert.equal(L.viewerLoginMessage({ code: 'email_not_confirmed', status: 400 }), '帳號或密碼不正確，請再試一次。', '不透露帳號存在但未確認');
+  assert.equal(L.viewerLoginMessage({ code: 'over_request_rate_limit', status: 429 }), '嘗試次數太多，請過幾分鐘再試。');
+  assert.equal(L.viewerLoginMessage({ message: 'Failed to fetch' }), '無法連線，請確認網路後再試一次。');
+  const odd = L.viewerLoginMessage({ message: '<img src=x onerror=alert(1)>' });
+  assert.equal(odd.includes('<img'), false);
+  assert.equal(L.viewerLoginMessage(null), '');
+});
+
+const VIEW_MATS = [
+  { id: '1', folder_id: 'phy', title: '歐姆定律整理', is_learned: false, created_at: '2026-11-01T00:00:00Z' },
+  { id: '2', folder_id: 'ele', title: '串聯與並聯 Ohm', is_learned: false, created_at: '2026-11-05T00:00:00Z' },
+  { id: '3', folder_id: 'bio', title: '細胞構造', is_learned: true, created_at: '2026-11-06T00:00:00Z' },
+];
+
+test('activeMaterials／searchMaterials：已學會不出現；不分大小寫、多個關鍵字都要符合', () => {
+  const act = L.activeMaterials(VIEW_MATS);
+  assert.deepEqual(act.map((m) => m.id), ['1', '2']);
+  assert.deepEqual(L.searchMaterials(act, '定律').map((m) => m.id), ['1']);
+  assert.deepEqual(L.searchMaterials(act, 'ohm').map((m) => m.id), ['2']);
+  assert.deepEqual(L.searchMaterials(act, '  串聯   ohm ').map((m) => m.id), ['2']);
+  assert.deepEqual(L.searchMaterials(act, '串聯 細胞'), []);
+  assert.deepEqual(L.searchMaterials(act, '   '), []);
+});
+
+test('recentMaterials：由新到舊、限制張數', () => {
+  assert.deepEqual(L.recentMaterials(VIEW_MATS, 2).map((m) => m.id), ['3', '2']);
+});
+
+test('deepMaterialCount／visibleSubfolders：孩子端隱藏沒有圖片的子資料夾', () => {
+  const { byId } = L.buildFolderTree(FOLDERS);
+  const act = L.activeMaterials(VIEW_MATS);
+  assert.equal(L.deepMaterialCount(byId, 'sci', act), 2);
+  assert.equal(L.deepMaterialCount(byId, 'phy', act), 2, '含子資料夾電學');
+  assert.deepEqual(L.visibleSubfolders(byId, 'sci', act).map((f) => f.id), ['phy'], '生物只有已學會的圖、自訂是空的，都隱藏');
+});
+
+test('viewerLoginMessage：iPad Safari 的網路錯誤（Load failed、status 0）', () => {
+  assert.equal(L.viewerLoginMessage({ message: 'Load failed', status: 0 }), '無法連線，請確認網路後再試一次。');
+  assert.equal(L.viewerLoginMessage({ name: 'AuthRetryableFetchError', message: 'x' }), '無法連線，請確認網路後再試一次。');
+});
+
+test('searchMaterials：全形空白也當關鍵字分隔', () => {
+  const act = L.activeMaterials(VIEW_MATS);
+  assert.deepEqual(L.searchMaterials(act, `串聯${IDEO_SPACE}ohm`).map((m) => m.id), ['2']);
+});
