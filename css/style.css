@@ -617,8 +617,9 @@ body:has(dialog.lightbox[open]) { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) { .cat-tile, .cat-tile:hover { transition: none; transform: none; } }
 
 .retry-box { justify-content: center; }
-.admin-notice { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; margin-bottom: 16px; }
-.admin-notice p { margin: 0; flex: 1 1 240px; }
+.admin-notice { display: flex; flex-wrap: wrap; gap: 8px 12px; align-items: center; justify-content: space-between; margin-bottom: 16px; font-size: .8125rem; }
+.admin-notice p { margin: 0; flex: 1 1 180px; line-height: 1.5; }
+.admin-notice .btn { flex: none; padding: 0 20px; }
 
 /* 孩子端：返回上一層／回首頁（手繪圖示按鈕） */
 .folder-nav { display: flex; flex-wrap: wrap; gap: 8px; }
