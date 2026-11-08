@@ -43,6 +43,12 @@ const VIEWS = ['login', 'noaccess', 'home', 'folder', 'search'];
 function show(name) {
   for (const v of VIEWS) document.querySelector(`[data-view="${v}"]`).hidden = v !== name;
   $('who').hidden = !['home', 'folder', 'search'].includes(name) && name !== 'noaccess';
+  // 登入後的瀏覽畫面：頁首有回成長記錄本；管理員再加回家長管理。
+  // 登入、無權限畫面的卡片裡本身已有返回鈕，頁首不重複
+  const browsing = ['home', 'folder', 'search'].includes(name);
+  $('siteLinks').hidden = !browsing;
+  $('adminBackLink').hidden = !browsing || mv.role !== 'admin';
+  document.querySelector('a.brand').setAttribute('href', browsing ? '#/home' : 'index.html');
   $('loadMsg').textContent = '';
   $('retryBox').hidden = true;
   $('viewError').textContent = '';
@@ -50,6 +56,8 @@ function show(name) {
 
 function showLoadError(text) {
   for (const v of VIEWS) document.querySelector(`[data-view="${v}"]`).hidden = true;
+  $('siteLinks').hidden = true; // 錯誤畫面的出口在「重新整理」旁；頁首不重複，也不會留下舊身分的「回家長管理」
+  document.querySelector('a.brand').setAttribute('href', 'index.html');
   $('loadMsg').className = 'load-msg load-msg--error';
   $('loadMsg').textContent = text;
   $('retryBox').hidden = false;

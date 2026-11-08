@@ -589,3 +589,13 @@ test('slotShortLabel：格式為「國一上 (1)」', () => {
   assert.equal(slotShortLabel({ grade: 1, semester: 1, exam_type: 1 }), '國一上 (1)');
   assert.equal(slotShortLabel({ grade: 2, semester: 2, exam_type: 3 }), '國二下 (3)');
 });
+
+test('examBackTarget：段考回顧回到進入前的頁面，沒有紀錄或不合法時預設學年地圖', () => {
+  const { examBackTarget } = require('../js/milestones.js');
+  assert.deepEqual(examBackTarget('history'), { route: 'history', href: '#/history', text: '回歷史紀錄' });
+  assert.deepEqual(examBackTarget('home'), { route: 'home', href: '#/home', text: '回首頁' });
+  assert.deepEqual(examBackTarget('map'), { route: 'map', href: '#/map', text: '回學年地圖' });
+  for (const bad of [null, undefined, '', 'growth', 'exam', '__proto__', 'toString', 'javascript:alert(1)']) {
+    assert.equal(examBackTarget(bad).route, 'map', `「${bad}」預設學年地圖`);
+  }
+});

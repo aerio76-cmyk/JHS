@@ -11,9 +11,15 @@
       { id: S(2), name: 'Milo', theme_color: '#3FA796', avatar_preset: 'bunny', avatar_url: null, enrolled_year: 2026 },
     ],
     subjects: ['chinese', 'english', 'math', 'science', 'social'].map((c, i) => ({ code: c, display_name: ['國文', '英文', '數學', '自然', '社會'][i], sort_order: i + 1 })),
-    exam_scores: [], exam_rankings: [], motivational_quotes: [],
+    exam_scores: [], exam_rankings: [],
+    motivational_quotes: [{ id: 1, category: 'progress', content: '每一步都算數', is_active: true }, { id: 2, category: 'stable', content: '穩穩向前', is_active: true }],
     material_folders: [], materials: [],
   };
+  // 前台用的段考成績：Enisa 國一上第一、二次段考
+  for (const [exam, base] of [[1, 80], [2, 85]]) {
+    db.subjects.forEach((sub, k) => db.exam_scores.push({ id: db.exam_scores.length + 1, student_id: S(1), grade: 1, semester: 1, exam_type: exam, subject: sub.code, score: base + k }));
+    db.exam_rankings.push({ id: exam, student_id: S(1), grade: 1, semester: 1, exam_type: exam, rank: 40 - exam * 5, total_students: 300 });
+  }
   const sys = [['chinese', '國文', null], ['english', '英文', null], ['math', '數學', null], ['science', '自然', ['理化', '生物', '地球科學']], ['social', '社會', ['歷史', '地理', '公民']], ['other', '其他', null]];
   sys.forEach(([key, name, subs], i) => {
     const id = uuid();
@@ -22,8 +28,13 @@
   });
   const files = { materials: new Map(), avatars: new Map() };
   window.__fail = {};
-  const startAnon = new URLSearchParams(location.search).get('fake') === 'anon';
-  let session = startAnon ? null : { role: 'admin', user: { id: 'admin-uid', email: 'parent@example.com', identities: [{ provider: 'google' }] } };
+  const fakeMode = new URLSearchParams(location.search).get('fake') || '';
+  const startAnon = fakeMode === 'anon';
+  // 其他模式：other＝已登入但不在任何名單；studentsfail／indexfail＝資料讀取失敗；nostudents＝還沒有學生
+  if (fakeMode === 'nostudents') db.students.length = 0;
+  let session = startAnon ? null : fakeMode === 'other'
+    ? { role: 'none', user: { id: 'other-uid', email: 'other@example.test' } }
+    : { role: 'admin', user: { id: 'admin-uid', email: 'parent@example.com', identities: [{ provider: 'google' }] } };
   window.__setSession = (role) => { session = role ? { role, user: { id: role + '-uid', email: role === 'viewer' ? 'viewer@example.test' : 'parent@example.com' } } : null; };
   const isViewer = () => session?.role === 'viewer';
   const authListeners = [];
@@ -65,6 +76,10 @@
       if (!rows) return { data: null, error: { message: `relation ${table} does not exist` } };
       const match = (r) => st.filters.every((f) => f(r));
       let out;
+      if (st.op === 'select' && ((fakeMode === 'studentsfail' && table === 'students') || (fakeMode === 'indexfail' && table === 'subjects')
+        || (table === 'materials' && window.__fail.selectMaterials > 0 && window.__fail.selectMaterials--))) {
+        return { data: null, error: { message: 'Failed to fetch' } };
+      }
       if (st.op === 'select') {
         if (!session && ['materials', 'material_folders'].includes(table)) return { data: null, error: { message: `permission denied for table ${table}`, code: '42501' } };
         out = rows.filter(match);
@@ -143,7 +158,10 @@
     createClient() {
       return {
         auth: {
-          async getSession() { return { data: { session: session ? { user: session.user } : null } }; },
+          async getSession() {
+            if (new URLSearchParams(location.search).get('fake') === 'error') throw new Error('Failed to fetch'); // 模擬連線失敗
+            return { data: { session: session ? { user: session.user } : null } };
+          },
           async signOut(opts = {}) { log.push(['signOut', opts.scope || 'global']); try { sessionStorage.setItem('fakeLastSignOut', opts.scope || 'global'); } catch {} session = null; emit('SIGNED_OUT'); return { error: null }; },
           async signInWithPassword({ email, password }) {
             log.push(['login', email]);

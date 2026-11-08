@@ -19,16 +19,24 @@
 <body>
   <header class="site-header">
     <div class="site-header__inner">
-      <p class="brand">成長記錄本・家長管理</p>
+      <a class="brand" href="#/scores">成長記錄本・家長管理</a>
       <div class="who" id="who" hidden>
         <span id="loggedInEmail"></span>
         <button class="btn" type="button" id="logoutBtn">登出</button>
       </div>
+      <nav class="site-links" id="siteLinks" aria-label="其他網站" hidden>
+        <a class="btn btn--icon" href="index.html"><img src="assets/materials-icons/back.svg" alt="" width="24" height="24" /><span>回成長記錄本</span></a>
+        <a class="btn btn--icon" href="materials.html"><img src="assets/materials-icons/library.svg" alt="" width="24" height="24" /><span>學習資料庫<span class="visually-hidden">（孩子端預覽）</span></span></a>
+      </nav>
     </div>
   </header>
 
   <main>
     <p class="load-msg" id="loadMsg" role="status">載入中…</p>
+    <div class="actions load-actions" id="loadActions" hidden>
+      <button class="btn btn--primary" type="button" id="reloadBtn">重新整理</button>
+      <a class="btn btn--icon" href="index.html"><img src="assets/materials-icons/back.svg" alt="" width="24" height="24" /><span>回成長記錄本</span></a>
+    </div>
 
     <!-- 未登入 -->
     <section class="card login-card" id="loginGate" aria-labelledby="loginTitle" hidden>
@@ -36,7 +44,7 @@
       <p>用已加入白名單的 Google 帳號登入，才能輸入成績與管理學生資料。</p>
       <p class="msg msg--error" id="loginError" role="alert"></p>
       <button class="btn btn--primary" type="button" id="googleLoginBtn">用 Google 登入</button>
-      <a class="btn" href="index.html">← 回成長記錄本</a>
+      <a class="btn btn--icon" href="index.html"><img src="assets/materials-icons/back.svg" alt="" width="24" height="24" /><span>回成長記錄本</span></a>
     </section>
 
     <!-- 已登入但不在白名單 -->
@@ -44,7 +52,7 @@
       <h1 id="noAccessTitle">這個帳號沒有編輯權限</h1>
       <p>如果需要權限，請聯絡主管理帳號把你的 Email 加入白名單。</p>
       <button class="btn btn--primary" type="button" id="logoutBtnNoAccess">登出，改用其他帳號</button>
-      <a class="btn" href="index.html">← 回成長記錄本</a>
+      <a class="btn btn--icon" href="index.html"><img src="assets/materials-icons/back.svg" alt="" width="24" height="24" /><span>回成長記錄本</span></a>
     </section>
 
     <!-- 管理介面 -->
@@ -118,7 +126,10 @@
 
         <!-- 學習資料 -->
         <section class="view stack" data-view="materials" aria-labelledby="materialsTitle" hidden>
-          <h1 class="section-title" id="materialsTitle">學習資料</h1>
+          <div class="title-row">
+            <h1 class="section-title" id="materialsTitle">學習資料</h1>
+            <a class="btn btn--icon" href="materials.html"><img src="assets/materials-icons/library.svg" alt="" width="24" height="24" /><span><span class="visually-hidden">學習資料庫</span>孩子端預覽</span></a>
+          </div>
           <div class="msg-area" data-msg="materials"></div>
           <div class="mat-admin">
             <!-- 資料夾樹與用量 -->
@@ -305,6 +316,7 @@
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous" defer></script>
+  <script src="js/siteNav.js" defer></script>
   <script src="js/config.js" defer></script>
   <script src="js/supabaseClient.js" defer></script>
   <script src="js/auth.js" defer></script>

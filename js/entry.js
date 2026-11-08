@@ -121,6 +121,7 @@ function buildSubjectInputs(msg) {
 // 選好學生與段考後，把資料庫裡的分數帶進表單，才能「編輯」。
 // 讀取期間與讀取失敗時，欄位一律清空並鎖住，避免把上一次的分數存進這一次。
 async function loadExistingScores(msg) {
+  siteNav.markClean(); // 換一次段考會重新帶入既有分數，之前的輸入不算未儲存
   const ex = pickedExam('score');
   const token = ++entry.loadToken.score;
   const fields = document.getElementById('scoreFields');
@@ -190,7 +191,7 @@ async function handleScoreSubmit(e, msg) {
   const dateChanged = hasExisting && examDate !== entry.existingDate;
   if (!upserts.length && !deletes.length) {
     if (!hasExisting) return msg.error('請至少輸入一科分數。');
-    if (!dateChanged) return msg.ok('沒有任何變更。');
+    if (!dateChanged) { siteNav.markClean(); return msg.ok('沒有任何變更。'); }
   }
   if (deletes.length) {
     const names = deletes.map((code) => entry.subjects.find((s) => s.code === code)?.display_name ?? code).join('、');
@@ -222,6 +223,7 @@ async function handleScoreSubmit(e, msg) {
     if (deletes.length) parts.push(`刪除 ${deletes.length} 科`);
     if (!parts.length) parts.push('更新考試日期');
     await loadExistingScores();
+    siteNav.markClean();
     msg.ok(`已${parts.join('、')}：${examLabel(ex)}。`);
   } catch (error) {
     console.error(error);
@@ -236,6 +238,7 @@ async function handleScoreSubmit(e, msg) {
 
 /* ================= 校排名 ================= */
 async function loadExistingRank(msg) {
+  siteNav.markClean();
   const ex = pickedExam('rank');
   const token = ++entry.loadToken.rank;
   const fields = document.getElementById('rankFields');
@@ -287,6 +290,7 @@ async function handleRankSubmit(e, msg) {
       { onConflict: 'student_id,grade,semester,exam_type' });
     if (error) throw error;
     await loadExistingRank();
+    siteNav.markClean();
     msg.ok(`已儲存：${examLabel(ex)} 第 ${check.rank} 名／共 ${check.total} 人。`);
   } catch (error) {
     console.error(error);
@@ -488,6 +492,7 @@ function studentCard(student) {
       saveBtn.dataset.label = `儲存 ${student.name} 的設定`;
       renameStudentOptions(student);
       refresh();
+      siteNav.markClean();
       saveMsg.ok(`已儲存 ${student.name} 的設定，前台重新整理就會看到。`);
     } catch (error) {
       console.error(error);
@@ -655,6 +660,7 @@ async function handleAddAdmin(e, msg) {
       return;
     }
     input.value = '';
+    siteNav.markClean();
     msg.ok(`已加入 ${check.value}。`);
     await renderAdminList(msg);
   } finally {
@@ -679,6 +685,18 @@ function renderRoute() {
 
 function showPanel(name) {
   for (const id of ['loginGate', 'noAccessPanel', 'entryPanel']) document.getElementById(id).hidden = id !== name;
+  // 登入後的管理畫面：頁首顯示回成長記錄本、學習資料庫（登入與無權限畫面本身已有返回鈕）
+  document.getElementById('siteLinks').hidden = name !== 'entryPanel';
+  // 登入前與無權限時沒有管理頁可回，品牌連到成長記錄本
+  document.querySelector('a.brand').setAttribute('href', name === 'entryPanel' ? '#/scores' : 'index.html');
+}
+
+// 載入失敗時：顯示重新整理與回成長記錄本，不要只留一行文字
+function showLoadError(loadMsg, text) {
+  loadMsg.className = 'load-msg load-msg--error';
+  loadMsg.textContent = text;
+  document.getElementById('loadActions').hidden = false;
+  document.querySelector('a.brand').setAttribute('href', 'index.html');
 }
 
 const SUPABASE_ORIGIN = (() => {
@@ -693,6 +711,7 @@ async function init() {
   const loadMsg = document.getElementById('loadMsg');
   const loginError = document.getElementById('loginError');
   const loginBtn = document.getElementById('googleLoginBtn');
+  document.getElementById('reloadBtn').addEventListener('click', () => location.reload());
   loginBtn.addEventListener('click', async () => {
     loginError.textContent = '';
     setBusy(loginBtn, true, '前往 Google…');
@@ -719,8 +738,7 @@ async function init() {
     status = await getCurrentAdminStatus();
   } catch (error) {
     console.error(error);
-    loadMsg.className = 'load-msg load-msg--error';
-    loadMsg.textContent = '無法確認登入狀態，請稍後重新整理頁面。';
+    showLoadError(loadMsg, '無法確認登入狀態，請稍後重新整理頁面。');
     return;
   }
   loadMsg.textContent = '';
@@ -741,8 +759,7 @@ async function init() {
   ]);
   if (studentsRes.error || subjectsRes.error) {
     console.error(studentsRes.error || subjectsRes.error);
-    loadMsg.className = 'load-msg load-msg--error';
-    loadMsg.textContent = '學生或科目資料讀取失敗，請稍後重新整理頁面。';
+    showLoadError(loadMsg, '學生或科目資料讀取失敗，請稍後重新整理頁面。');
     return;
   }
   entry.students = studentsRes.data;
@@ -774,6 +791,10 @@ async function init() {
   });
   showLastBackup();
   initMaterials();
+  // 表單有輸入就標記「未儲存」；儲存成功或重新帶入那次段考時清除（離開本頁前會提醒）
+  for (const id of ['scoreForm', 'rankForm', 'addAdminForm', 'studentCards']) {
+    document.getElementById(id).addEventListener('input', () => siteNav.markDirty());
+  }
 
   if (status.role === 'super_admin') {
     document.querySelector('.admin-nav a[data-route="admins"]').hidden = false;

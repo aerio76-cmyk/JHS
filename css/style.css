@@ -32,7 +32,7 @@
 [hidden] { display: none !important; }
 /* 換頁時程式把焦點移到標題（tabindex=-1），不需要顯示外框 */
 [tabindex='-1']:focus:not(:focus-visible) { outline: none; }
-html { scroll-padding-top: 130px; } /* sticky 頁首不擋住聚焦元素 */
+html { scroll-padding-top: calc(var(--header-h, 130px) + 12px); } /* sticky 頁首不擋住聚焦元素 */
 
 body {
   margin: 0;
@@ -311,7 +311,7 @@ a.cell:hover { transform: translateY(-2px) rotate(-1deg); }
 .admin-layout { display: grid; gap: 16px; }
 @media (min-width: 900px) { .admin-layout { grid-template-columns: 200px 1fr; align-items: start; } }
 .admin-nav { display: flex; flex-wrap: wrap; gap: 4px; }
-@media (min-width: 900px) { .admin-nav { flex-direction: column; position: sticky; top: 76px; } }
+@media (min-width: 900px) { .admin-nav { flex-direction: column; position: sticky; top: calc(var(--header-h, 76px) + 8px); } } /* --header-h 由 js/siteNav.js 依實際頁首高度設定 */
 .admin-nav a {
   display: flex; align-items: center; min-height: 44px; padding: 0 14px; border-radius: 12px;
   color: var(--ink-soft); text-decoration: none; white-space: nowrap;
@@ -625,3 +625,15 @@ body:has(dialog.lightbox[open]) { overflow: hidden; }
 .btn--icon { gap: 8px; padding: 0 16px 0 10px; min-height: 48px; }
 .btn--icon img { width: 28px; height: 28px; flex: none; }
 .btn--icon[hidden] { display: none; }
+
+/* ===== 頁面導覽：站台列（回成長記錄本／學習資料庫／回家長管理）、品牌連結 ===== */
+a.brand { display: inline-block; min-height: 44px; padding: 2px 0; color: inherit; text-decoration: none; } /* 品牌連結的觸控高度 ≥ 44 px */
+a.brand:hover { color: var(--accent-ink); }
+.site-links { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 8px; padding: 2px 0 10px; }
+.site-links .btn--icon { min-height: 44px; padding: 0 14px 0 8px; font-size: .9rem; gap: 6px; }
+.site-links .btn--icon img { width: 24px; height: 24px; }
+.site-links--inline { padding: 0 0 12px; }
+.title-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.load-actions { justify-content: center; }
+/* 段考回顧時，頁首標示「從哪一頁來」：用虛線底線，看得出來但不會誤認成還在那一頁 */
+.tabs a[aria-current='true'] { color: var(--ink); border-bottom: 2px dashed var(--accent); }

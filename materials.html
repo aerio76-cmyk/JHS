@@ -19,11 +19,15 @@
 <body>
   <header class="site-header">
     <div class="site-header__inner">
-      <p class="brand">學習資料庫</p>
+      <a class="brand" href="#/home">學習資料庫</a>
       <div class="who" id="who" hidden>
         <span id="whoLabel">已登入</span>
         <button class="btn" type="button" id="logoutBtn">登出</button>
       </div>
+      <nav class="site-links" id="siteLinks" aria-label="其他網站" hidden>
+        <a class="btn btn--icon" href="index.html"><img src="assets/materials-icons/back.svg" alt="" width="24" height="24" /><span>回成長記錄本</span></a>
+        <a class="btn btn--icon" href="entry.html#/materials" id="adminBackLink" hidden><img src="assets/materials-icons/back.svg" alt="" width="24" height="24" /><span>回家長管理</span></a>
+      </nav>
     </div>
   </header>
 
@@ -32,9 +36,9 @@
     <!-- 家長在孩子的平板上用 Google 登入時：看完要登出，否則孩子之後開家長端就有編輯權限 -->
     <div class="msg msg--error admin-notice" id="adminNotice" role="note" hidden>
       <p>目前是<strong>家長帳號</strong>登入。這台平板若是孩子在用，看完請登出，否則孩子可以進家長端修改資料。</p>
-      <button class="btn btn--primary" type="button" id="adminLogout">登出家長帳號</button>
+      <div class="actions"><a class="btn btn--icon" href="entry.html#/materials"><img src="assets/materials-icons/back.svg" alt="" width="24" height="24" /><span>看完回家長管理</span></a><button class="btn btn--primary" type="button" id="adminLogout">登出家長帳號</button></div>
     </div>
-    <div class="actions retry-box" id="retryBox" hidden><button class="btn btn--primary" type="button" id="retryBtn">重新整理</button></div>
+    <div class="actions retry-box" id="retryBox" hidden><button class="btn btn--primary" type="button" id="retryBtn">重新整理</button><a class="btn btn--icon" href="index.html"><img src="assets/materials-icons/back.svg" alt="" width="24" height="24" /><span>回成長記錄本</span></a></div>
 
     <!-- 觀看登入（帳號＋密碼；網站不提供註冊與重設密碼） -->
     <section class="card login-card" data-view="login" aria-labelledby="loginTitle" hidden>
@@ -56,7 +60,7 @@
         <button class="btn btn--primary" type="submit" id="loginBtn">登入</button>
       </form>
       <p class="hint">忘記密碼請問家長；這裡沒有註冊與重設密碼的功能。登入後這台裝置會一直保持登入，直到按「登出」。</p>
-      <a class="btn" href="index.html">← 回成長記錄本</a>
+      <a class="btn btn--icon" href="index.html"><img src="assets/materials-icons/back.svg" alt="" width="24" height="24" /><span>回成長記錄本</span></a>
     </section>
 
     <!-- 已登入但不是觀看帳號 -->
@@ -64,7 +68,7 @@
       <h1 id="noAccessTitle">這個帳號不能看學習資料</h1>
       <p>請登出後，改用家長給你的觀看帳號登入。</p>
       <button class="btn btn--primary" type="button" id="noAccessLogout">登出，改用觀看帳號</button>
-      <a class="btn" href="index.html">← 回成長記錄本</a>
+      <a class="btn btn--icon" href="index.html"><img src="assets/materials-icons/back.svg" alt="" width="24" height="24" /><span>回成長記錄本</span></a>
     </section>
 
     <!-- 首頁：搜尋＋六大分類＋最近新增 -->
@@ -100,6 +104,9 @@
 
     <!-- 搜尋結果 -->
     <div class="stack" data-view="search" hidden>
+      <nav class="folder-nav" aria-label="返回">
+        <a class="btn btn--icon" href="#/home"><img src="assets/materials-icons/home.svg" alt="" width="28" height="28" /><span>學習資料庫首頁</span></a>
+      </nav>
       <form class="search" role="search" data-search>
         <label class="visually-hidden" for="q2">搜尋圖片標題</label>
         <img src="assets/search.svg" alt="" width="20" height="20" />
@@ -107,9 +114,6 @@
       </form>
       <h1 class="section-title" id="searchTitle" tabindex="-1"></h1>
       <ul class="thumb-grid" id="searchThumbs"></ul>
-      <nav class="folder-nav" aria-label="返回">
-        <a class="btn btn--icon" href="#/home"><img src="assets/materials-icons/home.svg" alt="" width="28" height="28" /><span>學習資料庫首頁</span></a>
-      </nav>
     </div>
 
     <p class="msg msg--error" id="viewError" role="alert"></p>
@@ -132,6 +136,7 @@
   </dialog>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous" defer></script>
+  <script src="js/siteNav.js" defer></script>
   <script src="js/config.js" defer></script>
   <script src="js/supabaseClient.js" defer></script>
   <script src="js/backupLogic.js" defer></script>

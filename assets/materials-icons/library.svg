@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="學習資料庫">
+  <path d="M9 14 L21 14 L21 54 L9 54 Z M24 10 L36 10 L36 54 L24 54 Z M40 16 L51 13 L59 51 L48 54 Z" fill="#9B87D9" transform="translate(4 4)" opacity="0.75"/>
+  <g stroke="#3A3440" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9 14 C13 13.5 17 14.5 21 14 C21.5 27 20.5 41 21 54 C17 54.5 13 53.5 9 54 C8.5 41 9.5 27 9 14 Z" fill="none"/>
+    <path d="M24 10 C28 9.5 32 10.5 36 10 C36.5 25 35.5 39 36 54 C32 54.5 28 53.5 24 54 C23.5 39 24.5 25 24 10 Z" fill="none"/>
+    <path d="M40 16 C43.5 15 47.5 14 51 13 C53.5 26 56.5 38 59 51 C55.5 52 51.5 53 48 54 C45.5 41 42.5 29 40 16 Z" fill="none"/>
+    <path d="M12 22 L18 22 M12 46 L18 46 M27 18 L33 18 M27 46 L33 46" fill="none" stroke-width="2.4"/>
+  </g>
+</svg>
