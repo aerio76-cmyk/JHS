@@ -313,7 +313,7 @@ with sync_playwright() as p:
     pg.wait_for_timeout(500)
     ok('管理員 session：直接進首頁，並顯示醒目的「看完請登出」警示與按鈕', pg.locator('[data-view="home"]').is_visible() and pg.locator('#whoLabel').inner_text() == '家長帳號' and pg.locator('#adminNotice').is_visible() and pg.locator('#adminLogout').is_visible())
     pg.click('#adminLogout'); pg.wait_for_selector('[data-view="login"]:not([hidden])')
-    ok('按「登出家長帳號」回到觀看登入、警示消失', pg.locator('#adminNotice').is_hidden())
+    ok('按警示框的「登出」回到觀看登入、警示消失', pg.locator('#adminNotice').is_hidden())
     ctx.close()
     b.close()
 

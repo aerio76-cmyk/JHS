@@ -188,7 +188,7 @@ with sync_playwright() as p:
     ctx.close()
     ctx, pg, errs = new_page(f'{B}/materials.html')  # 預設是管理員 session
     pg.wait_for_selector('[data-view="home"]:not([hidden])')
-    ok('學習資料庫（管理員）：警示框內有「看完回家長管理」（與頁首的文字可區分）', pg.locator('#adminNotice a[href="entry.html#/materials"]').inner_text() == '看完回家長管理')
+    ok('學習資料庫（管理員）：警示框只留登出鈕，回家長管理在頁首', pg.locator('#adminNotice a').count() == 0 and pg.locator('#adminLogout').is_visible() and exits(pg, 'entry.html') == ['回家長管理'], str(exits(pg)))
     pg.set_viewport_size({'width': 360, 'height': 800}); pg.wait_for_timeout(300)
     r = pg.evaluate(LAYOUT)
     ok('學習資料庫（管理員）360px：沒有橫向捲動、觸控目標 ≥ 44 px', r['over'] == 0 and not r['small'], json.dumps(r, ensure_ascii=False))
