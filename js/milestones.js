@@ -224,6 +224,13 @@ function avatarSrc(student, allowedOrigin) {
   return `assets/avatars/${preset}.svg`;
 }
 
+// 段考回顧的「返回」：回到進入前的頁面（學年地圖／歷史紀錄／首頁）；沒有紀錄或不合法時預設學年地圖
+const EXAM_BACK_LABEL = { map: '學年地圖', history: '歷史紀錄', home: '首頁' };
+function examBackTarget(lastRoute) {
+  const route = Object.prototype.hasOwnProperty.call(EXAM_BACK_LABEL, lastRoute) ? lastRoute : 'map';
+  return { route, href: `#/${route}`, text: `回${EXAM_BACK_LABEL[route]}` };
+}
+
 // 解析 location.hash（例如 #/exam/1-2-3）。只接受 views 自己的鍵，
 // 不能用 in（#/constructor、#/__proto__ 會從原型鏈通過）
 function parseRoute(hash, views) {
@@ -233,7 +240,7 @@ function parseRoute(hash, views) {
 
 if (typeof module !== 'undefined') {
   module.exports = {
-    parseRoute, isSafeAvatarUrl,
+    parseRoute, examBackTarget, isSafeAvatarUrl,
     ALL_SLOTS, slotShortLabel, slotLongLabel, round1, formatScore, diffText, rankDeltaText,
     heatLevel, rankChange, computeMilestones, topSubject, highlightSubject, termAverages,
     pickQuote, quoteForSitting, safeThemeColor, AVATAR_PRESETS, avatarSrc,

@@ -594,14 +594,17 @@ function renderMap(d) {
 }
 
 /* ================= 段考回顧 ================= */
-function renderExam(d, key) {
+function renderExam(d, key, back = examBackTarget(null)) {
   const body = document.getElementById('examBody');
   body.replaceChildren();
+  // 返回鈕放在內容最上方（回到進入前的頁面，不用 history.back()）
+  body.append(el('nav', { class: 'site-links site-links--inline', 'aria-label': '返回' },
+    el('a', { class: 'btn btn--icon', href: back.href, 'data-exam-back': '' },
+      el('img', { src: 'assets/materials-icons/back.svg', alt: '', width: '24', height: '24' }), el('span', { text: back.text }))));
   const { sittings, examScores, rankings, milestones } = d;
   const idx = sittings.findIndex((s) => sittingKey(s) === key);
   if (idx === -1) {
-    const box = emptyBlock('這次段考還沒有紀錄', '回到學年地圖，選一個已經有分數的格子。');
-    box.append(el('p', {}, el('a', { href: '#/map', class: 'btn', text: '回學年地圖' })));
+    const box = emptyBlock('這次段考還沒有紀錄', '換一次已經有分數的段考看看。');
     body.append(el('h1', { class: 'visually-hidden', id: 'examTitle', text: '段考回顧' }), el('div', { class: 'card' }, box));
     return;
   }
@@ -725,6 +728,18 @@ function route() {
   return parseRoute(location.hash, VIEW_TITLE);
 }
 
+// 記住「最後一個非段考頁」，段考回顧的返回鈕與頁首目前位置都依它決定。
+// 存在 sessionStorage：同一個分頁重新整理後仍記得；直接開連結或新分頁時沒有紀錄，預設學年地圖
+const STORAGE_EXAM_FROM = 'jhs.examFrom';
+function rememberExamFrom(name) {
+  state.examFrom = name;
+  try { sessionStorage.setItem(STORAGE_EXAM_FROM, name); } catch { /* 存不了只是重新整理後回到預設 */ }
+}
+function examFrom() {
+  if (state.examFrom) return state.examFrom;
+  try { return sessionStorage.getItem(STORAGE_EXAM_FROM); } catch { return null; }
+}
+
 function render() {
   const msg = document.getElementById('loadMsg');
   try {
@@ -746,10 +761,13 @@ function renderView() {
   renderSwitch();
 
   const r = route();
+  if (r.name !== 'exam') rememberExamFrom(r.name);
+  const back = examBackTarget(examFrom());
   document.querySelectorAll('.view').forEach((v) => (v.hidden = v.dataset.view !== r.name));
   document.querySelectorAll('.tabs a').forEach((a) => {
     if (a.dataset.route === r.name) a.setAttribute('aria-current', 'page');
-    else if (r.name === 'exam' && a.dataset.route === 'map') a.setAttribute('aria-current', 'true');
+    // 段考回顧時，頁首標示「從哪一頁來」，與返回鈕一致
+    else if (r.name === 'exam' && a.dataset.route === back.route) a.setAttribute('aria-current', 'true');
     else a.removeAttribute('aria-current');
   });
   document.title = `${VIEW_TITLE[r.name]}・成長記錄本`;
@@ -760,10 +778,18 @@ function renderView() {
   if (r.name === 'growth') renderGrowth(d);
   if (r.name === 'map') renderMap(d);
   if (r.name === 'history') renderHistory(d);
-  if (r.name === 'exam') renderExam(d, r.arg);
+  if (r.name === 'exam') renderExam(d, r.arg, back);
 
   // 不把資料字串拼進 CSS 選擇器（科目代碼含引號會讓 querySelector 丟錯）
   if (state.focusKey) [...document.querySelectorAll('[data-focus-key]')].find((n) => n.dataset.focusKey === state.focusKey)?.focus();
+}
+
+// 載入失敗時提供「重新整理」（頁首分頁在資料載入前沒有作用）
+function showReload() {
+  const box = document.getElementById('loadActions');
+  if (!box) return;
+  box.hidden = false;
+  document.getElementById('reloadBtn').addEventListener('click', () => location.reload(), { once: true });
 }
 
 async function init() {
@@ -774,6 +800,7 @@ async function init() {
     console.error(error);
     msg.className = 'load-msg load-msg--error';
     msg.textContent = '資料讀取失敗，請稍後重新整理頁面。';
+    showReload();
     return;
   }
   if (!state.students.length) {
